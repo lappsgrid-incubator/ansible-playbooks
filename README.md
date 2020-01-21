@@ -22,9 +22,16 @@ $> ansible-playbook openstack/cloud-create.yml
 # [task] Edit /etc/ansible/hosts on the Ansible command host.
 
 # The remaining command are run on the Ansible command host.
+$> ansible-playbook download.yml
 $> ansible-playbook etc_hosts.yml
 $> ansible-playbook zookeeper.yml
 $> ansible-playbook solr.yml
+```
+
+There is also an *uber-playbook* called *solr-cloud.yml* that simply calls the above playbooks in order.  So the four commands above can be accomplished with
+
+``` 
+$> ansible-playbook solr-cloud.yml
 ```
 
 # Complete Instructions
@@ -47,6 +54,8 @@ $> ansible-playbook openstack/cloud-create.yml -e 'solr_ids=[1, 2, 3, 4] zk_ids=
 The *network*, *security group*, and *key pair* must have been created previously on Jetstream.
 
 **TBD** Automate the creationg of networks, security groups, and keys with Anisble Playbooks!
+
+**NOTE** The playbook to provision the Jetstream instances **must** be run on a machine with your OpenStack credentials (openrc.sh). **Do not** upload your Jetstream credentials to a Jetstream host! 
 
 ## Inventory
 
@@ -90,6 +99,17 @@ Ansible works with SSH and before we can connect to any of the servers we need t
 $> ./ssh-reset.sh 21 25 28 20 26 
 ```
 
+## Download Solr and Zookeeper
+
+During testing and development downloading files and verifying their checksums was refactored into a separate playbook to avoid the cost of repeatedly downloading the same files.
+
+``` 
+$> ansible-playbook download.yml
+```
+
+**TODO** Downloading and verifying the tarballs should be refactored back into the respective playbooks.
+
+
 ## /etc/hosts
 
 After all the nodes have been created the `/etc/hosts` file on each is updated so nodes can refer to each other by hostname.
@@ -106,7 +126,7 @@ $> ansible zkhosts -m template -b -a 'src=templates/hosts.j2 dest=/etc/hosts'
 
 ## Install software
 
-Two playbooks are provided to install the required software, one of Zookeeper and the other for Solr.  The Zookeeper playbook should be run first as Solr will look for Zookeeper when it starts.
+Two playbooks are provided to install the required software, one for Zookeeper and the other for Solr.  The Zookeeper playbook should be run first as Solr will look for Zookeeper when it starts.
 
 ``` 
 $> ansible-playbook zookeeper.yml
