@@ -3,9 +3,13 @@
   tasks:
   - name: Check
     fail:
-      msg: loop_ids not defined
-    when: loop_ids is undefined
+      msg: "{{ item }} not defined"
+    when: "item is undefined"
+    loop: ['v1','v2','v3']
   - name: Test vars
     debug:
       msg: Loop {{ item }}
-    loop: "{{ loop_ids }}"
+    loop:
+      - "{{ v1 }}"
+      - "{{ v2 }}"
+      - "{{ v3 }}"

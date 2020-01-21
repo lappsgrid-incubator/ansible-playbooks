@@ -1,0 +1,20 @@
+---
+# Since the Solr tarball is too big to keep in source control we will download the required files as a
+# separate playbook.  These tasks should be rolled back into the solr.yml and zookeeper.yml playbooks.
+- hosts: localhost
+  vars:
+    solr:
+      download: http://apache.mirrors.pair.com/lucene/solr/8.4.1/solr-8.4.1.tgz
+      checksum: https://www.apache.org/dist/lucene/solr/8.4.1/solr-8.4.1.tgz.sha512
+    zookeeper:
+      download: http://apache.mirrors.lucidnetworks.net/zookeeper/zookeeper-3.5.5/apache-zookeeper-3.5.5-bin.tar.gz
+      checksum: https://archive.apache.org/dist/zookeeper/zookeeper-3.5.5/apache-zookeeper-3.5.5-bin.tar.gz.sha512
+  tasks:
+  - include_role: name=download-file
+    vars:
+      dest: files/
+      download_url: "{{ item.download }}"
+      checksum_url: "{{ item.checksum }}"
+    loop:
+      - "{{ zookeeper }}"
+      - "{{ solr }}"
