@@ -1,0 +1,11 @@
+---
+- hosts: zookeeper
+  become: yes
+  vars:
+    zk_home: /home/zookeeper
+  tasks:
+  - name: Generate zoo.conf files
+    template:
+      src: templates/zoo.cfg.j2
+      dest: "{{ zk_home }}/conf/zoo.cfg"
+      owner: zookeeper

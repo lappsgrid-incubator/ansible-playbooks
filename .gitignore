@@ -1,0 +1,8 @@
+*.ipr
+*.iws
+*.iml
+.idea/
+.venv/
+.DS_Store
+*.tgz
+*.gz

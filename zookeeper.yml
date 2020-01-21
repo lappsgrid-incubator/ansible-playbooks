@@ -1,0 +1,73 @@
+---
+- hosts: zookeeper
+  vars:
+    version: 3.5.5
+    basename: apache-zookeeper-{{ version }}-bin
+    tarball: "{{ basename }}.tar.gz"
+    package: zookeeper
+    user_name: "{{ package }}"
+    dest: /home/{{ user_name }}
+    dataDir: /var/{{ package }}
+    logDir: /var/log/{{ package }}
+    create_home: no
+    java_version: openjdk-8-jdk
+  become: yes
+  roles:
+    - install-java
+    - create-system-user
+  post_tasks:
+    - name: Unzip {{ tarball }}
+      unarchive:
+        src: files/{{ tarball }}
+        dest: /tmp
+    - name: Move to {{ dest }}
+      command: mv /tmp/{{ basename }} {{ dest }}
+    - name: chown {{ dest }}
+      file:
+        path: "{{ dest }}"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        recurse: true
+    - name: Make sure the {{ dataDir }} exists
+      file:
+        path: "{{ dataDir }}"
+        state: directory
+        recurse: yes
+    - name: Generate ID files for the zookeepers
+      template:
+        src: templates/myid.j2
+        dest: "{{ dataDir }}/myid"
+        owner: "{{ user_name }}"
+    - name: Generate the zoo.cfg files
+      template:
+        src: templates/zoo.cfg.j2
+        dest: "{{ dest }}/conf/zoo.cfg"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+    - name: Copy the zookeeper env file
+      copy:
+        src: files/zookeeper-env.sh
+        dest: "{{ dest }}/conf/zookeeper-env.sh"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+    - name: Generate the systemd service file
+      template:
+        src: templates/zookeeper.service.j2
+        dest: /etc/systemd/system/zookeeper.service
+        mode: 0755
+    - name: Ensure zookeeper can read/write its directories
+      file:
+        path: "{{ item }}"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        state: directory
+        recurse: yes
+      with_items:
+      - "{{ dataDir }}"
+      - "{{ logDir }}"
+    - name: Configure zookeeper to restart on a reboot
+      systemd:
+        name: "{{ package }}"
+        state: started
+        enabled: yes
+        daemon_reload: yes

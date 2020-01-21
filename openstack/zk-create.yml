@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Setup
+    include_vars: variables.yml
+  - name: Launch the zookeeper instance
+    os_server:
+      state: present
+      name: zk-{{ item }}
+      image: "{{ ubuntu_18_04 }}"
+      flavor: m1.tiny
+      key_name: tacc-shared-key
+      security_groups: solr
+      auto_ip: no
+      nics:
+      - net-id: "{{ lapps_network }}"
+    loop: "{{ zk_ids }}"
+
+      

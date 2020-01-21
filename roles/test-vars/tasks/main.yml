@@ -1,0 +1,19 @@
+---
+- name: Set basename
+  set_fact:
+    basename: "{{ package }}-{{ version }}"
+- name: Set tarball
+  set_fact:
+    tgz: "{{ basename }}.tgz"
+- name: Set download url
+  set_fact:
+    download_url: "{{ apache_mirror }}/{{ tgz }}"
+- name: Print the basename  
+  debug:
+    msg: "Base: {{ basename }}"
+- name: Print the tarball
+  debug:
+    msg: "TGZ: {{ tgz }}"
+- name: Print the download url
+  debug:
+    msg: "URL: {{ download_url }}"

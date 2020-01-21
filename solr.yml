@@ -1,0 +1,80 @@
+---
+- hosts: solr
+  vars:
+    package: solr
+    version: 8.4.1
+    basename: solr-{{ version }}
+    tarball: "{{ basename }}.tgz"
+    dest: /opt/solr
+    mountPoint: /var/data
+    dataDir: "{{ mountPoint }}/solr"
+    user_name: solr
+    create_home: yes
+    java_version: openjdk-8-jdk
+  become: yes
+  roles:
+    - install-java
+    - create-system-user
+  post_tasks:
+    - name: Mount the data volume
+      mount:
+        state: mounted
+        fstype: ext4
+        path: "{{ mountPoint }}"
+        src: /dev/sdb
+    - name: Create the data directory for Solr
+      file:
+        path: "{{ dataDir }}"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        state: directory
+    - name: Adjust the number of open files allowed.
+      pam_limits:
+        domain: '*'
+        limit_item: nofile
+        limit_type: '-'
+        value: 65536
+    - name: Generate the solr.in.sh script
+      template:
+        src: templates/solr.in.sh.j2
+        dest: /etc/default/solr.in.sh
+    - name: Unzip {{ tarball }}
+      unarchive:
+        src: files/{{ tarball }}
+        dest: /opt
+    - name: Create a symlink to {{ dest }}
+      file:
+        src: /opt/{{ basename }}
+        path: "{{ dest }}"
+        state: link
+    - name: set owner for link
+        file: "{{ dest }}"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+    - name: Change permissions for /opt/{{ basename }}
+      file:
+        path: /opt/{{ basename }}
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        recurse: yes
+    - name: Generate the systemd service file
+      template:
+        src: templates/solr.service.j2
+        dest: /etc/systemd/system/solr.service
+        mode: 0755
+    - name: Enable the solr service at startup
+      systemd:
+        name: solr
+        state: started
+        enabled: yes
+        daemon_reload: yes
+#    - name: Copy the init.d/solr script
+#      copy:
+#        src: files/init.d_solr
+#        dest: /etc/init.d/solr
+#        mode: 0755
+#    - name: Start the solr service
+#      systemd:
+#        name: solr
+#        enabled: yes
+#        state: started

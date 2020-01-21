@@ -1,0 +1,11 @@
+---
+- name: Fail if the user_name is not specified
+  fail:
+    msg: The user_name has not been specified.
+  when: user_name is undefined 
+- name: Create a user
+  user:
+    name: {{ user_name }}
+    state: present
+    createhome: yes
+    shell: /bin/bash

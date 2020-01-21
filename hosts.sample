@@ -1,0 +1,21 @@
+[zookeeper]
+zk1 zoo_id=1 ansible_host=10.1.1.4
+zk2 zoo_id=2 ansible_host=10.1.1.22
+zk3 zoo_id=3 ansible_host=10.1.1.29
+
+[solr]
+solr1 ansible_host=10.1.1.26
+solr2 ansible_host=10.1.1.9
+
+[zksolr]
+zk1
+zk2
+zk3
+solr1
+solr2
+
+[zookeeper:vars]
+ansible_ssh_private_key_file=/home/ubuntu/.ssh/tacc-shared-key.pem
+
+[solr:vars]
+ansible_ssh_private_key_file=/home/ubuntu/.ssh/tacc-shared-key.pem

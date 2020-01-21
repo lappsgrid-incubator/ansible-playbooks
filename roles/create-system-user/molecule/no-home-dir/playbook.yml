@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    user_name: foobar
+    create_home: no
+  roles:
+    - role: create-system-user

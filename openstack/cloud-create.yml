@@ -1,0 +1,43 @@
+---
+# The playbook for creating the Jetstream instances for a Solr cloud cluster.
+# The cluster will contain 'tiny' instances for the Zookeeper nodes and 'large'
+# instances for the Solr nodes. Set the 'zk_ids' and 'solr_ids' variables to
+# change the size of each group. zk_ids should be no smaller than 3.
+# 
+# EXAMPLE
+#
+# $> ansible-playbook cloud-create.yml -e 'zk_ids=[1,2,3,4,5] solr_ids=[1,2,3,4]'
+#
+# The default configuration with create three Zookeeper nodes and two Solr 
+# nodes.
+
+- hosts: localhost
+  tasks:
+  - name: Setup
+    include_vars: variables.yml
+  - name: Create zookeeper instances
+    os_server:
+      state: present
+      name: zk-{{ item }}
+      image: "{{ ubuntu_18_04 }}"
+      flavor: m1.tiny
+      key_name: tacc-shared-key
+      security_groups: solr
+      auto_ip: no
+      nics:
+      - net-id: "{{ lapps_network }}"
+    loop: "{{ zk_ids }}"
+  - name: Create Solr instances
+    os_server:
+      state: present
+      name: solr-{{ item }}
+      image: "{{ ubuntu_18_04 }}"
+      flavor: m1.large
+      key_name: tacc-shared-key
+      security_groups: solr
+      auto_ip: no
+      volumes:
+      - solr-{{ item }}
+      nics:
+      - net-id: "{{ lapps_network }}"
+    loop: "{{ solr_ids }}"

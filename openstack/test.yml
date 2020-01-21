@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Check
+    fail:
+      msg: "Name has not been defined."
+    when: name is undefined
+  - name: Setup
+    include_vars: variables.yml
+  - name: Print
+    debug:
+      msg: "It worked. Name is {{ name }}"
+      

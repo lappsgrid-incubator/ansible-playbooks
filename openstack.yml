@@ -1,0 +1,6 @@
+---
+plugin: openstack
+expand_hostvars: yes
+fail_on_errors: yes
+compose:
+  ansible_host: private_ip_address

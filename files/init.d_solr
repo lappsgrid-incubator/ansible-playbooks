@@ -1,0 +1,32 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          solr
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       Controls Apache Solr as a Service
+### END INIT INFO
+
+# WARNING this script does not work correctly; the vars in solr.in.sh are not passed in to
+# the solr process.
+
+if [ -f /etc/default/solr.in.sh ] ; then
+	source /etc/default/solr.in.sh
+fi
+
+CMD='sudo -u solr /opt/solr/bin/solr'
+case "$1" in 
+	start)
+		$CMD start'
+		;;
+	stop)
+		$CMD stop
+		;;
+	restart)
+		$CMD restart
+		;;
+	status)
+		$CMD status
+		;;
+esac

@@ -1,0 +1,12 @@
+---
+- name: Fail if the user_name is not specified
+  fail:
+    msg: The user_name has not been specified.
+  when: user_name is undefined
+- name: Create a system user for {{ user_name }}
+  user:
+    name: "{{ user_name }}"
+    system: yes
+    createhome: "{{ create_home | default('yes') }}"
+    state: present
+    shell: /bin/bash

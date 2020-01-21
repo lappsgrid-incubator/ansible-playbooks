@@ -1,0 +1,27 @@
+---
+- name: Ensure the destination has been set
+  fail:
+    msg: The destination directory has not been set.
+  when: dest is undefined
+- name: Download the checksum file
+  uri:
+    url: "{{ apache_checksum_url }}"
+    return_content: yes
+  register: checksum
+- name: Download the file and verify
+  get_url:
+    url: "{{ apache_download_url }}"
+    dest: /tmp
+    checksum: sha512:{{ checksum.content.split()[0] }}
+- name: Unzip the archive
+  unarchive:
+    creates: /tmp/{{ basename }}
+    src: /tmp/{{ tarball }}
+    dest: /tmp
+    copy: no
+- name: Move to the final destination
+  command: creates={{ dest }} mv /tmp/{{ basename }} {{ dest }}
+- name: Clean up
+  file:
+    path: /tmp/{{ tarball }}
+    state: absent

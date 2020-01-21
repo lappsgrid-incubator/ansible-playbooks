@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Setup
+    include_vars: variables.yml
+  - name: Create instances for Solr
+    os_server:
+      state: present
+      name: solr-{{ item }}
+      image: "{{ ubuntu_18_04 }}"
+      flavor: m1.large
+      key_name: tacc-shared-key
+      security_groups: solr
+      auto_ip: no
+      volumes:
+      - solr-{{ item }}
+      nics:
+      - net-id: "{{ lapps_network }}"
+    loop: "{{ solr_ids }}"

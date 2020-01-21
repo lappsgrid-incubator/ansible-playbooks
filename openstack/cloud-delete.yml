@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Setup
+      include_vars: variables.yml
+    - name: Remove Solr instances
+      os_server:
+        name: solr-{{ item }}
+        state: absent
+      loop: "{{ solr_ids }}"
+    - name: Remove Zookeeper instances
+      os_server:
+        name: zk-{{ item }}
+        state: absent
+      loop: "{{ zk_ids }}"

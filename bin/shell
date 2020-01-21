@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# USAGE
+# $> ./shell solr 'cat /etc/hosts'
+#
+# Use this script to run shell commands on groups of servers. Useful to verify the state of the
+# machines or perform simple tasks.
+
+servers=$1
+shift
+/bin/sh -c "ansible $servers -m shell -a '$@'"
+

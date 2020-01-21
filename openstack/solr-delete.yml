@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Setup
+    include_vars: variables.yml
+  - name: Remove the instances
+    os_server:
+      name: solr-{{ item }}
+      state: absent
+    loop: "{{ solr_ids }}"

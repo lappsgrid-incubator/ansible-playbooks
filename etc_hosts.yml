@@ -1,0 +1,8 @@
+---
+- hosts: zksolr
+  become: yes
+  tasks:
+    - name: Generate /etc/hosts from the template
+      template:
+        src: templates/hosts.j2
+        dest: /etc/hosts

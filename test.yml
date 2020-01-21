@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Check
+    fail:
+      msg: loop_ids not defined
+    when: loop_ids is undefined
+  - name: Test vars
+    debug:
+      msg: Loop {{ item }}
+    loop: "{{ loop_ids }}"

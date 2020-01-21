@@ -1,0 +1,10 @@
+---
+- name: Fail if java_version has not been defined
+  fail:
+    msg: The java_version has not been defined.
+  when: java_version is undefined
+- name: Install {{ java_version }}
+  apt:
+    pkg: "{{ java_version }}"
+    update_cache: yes
+    state: present

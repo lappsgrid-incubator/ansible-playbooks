@@ -1,0 +1,9 @@
+---
+- hosts: zookeeper
+  tasks:
+  - name: Create the myid file
+    template:
+      src: myid.j2
+      dest: /home/zookeeper/conf/myid
+      owner: zookeeper
+      mode: 0644

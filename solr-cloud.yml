@@ -1,0 +1,11 @@
+---
+# Configures a freshly launched group of servers as a Solr Cloud with a Zookeeper ensemble.
+- name: Configure /etc/hosts
+  import_playbook: etc_hosts.yml
+
+- name: Zookeeper setup
+  import_playbook: zookeeper.yml
+
+- name: Solr setup
+  import_playbook: solr.yml
+

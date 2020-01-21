@@ -1,0 +1,20 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    version: 3.5.5
+    basename: apache-zookeeper-{{ version }}-bin
+    tarball: "{{ basename }}.tar.gz"
+    apache_download_url: http://apache.mirrors.lucidnetworks.net/zookeeper/zookeeper-{{ version }}/{{ tarball }}
+    apache_checksum_url: https://apache.org/dist/zookeeper/zookeeper-{{ version }}/{{ tarball }}.sha512
+    package: zookeeper
+    dest: /home/zookeeper
+  pre_tasks:
+    - name: create zookeeper user
+      user:
+        name: zookeeper
+        system: yes
+        createhome: no
+        state: present
+  roles:
+    - role: install-apache-package

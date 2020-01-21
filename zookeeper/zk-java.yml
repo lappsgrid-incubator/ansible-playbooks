@@ -1,0 +1,9 @@
+---
+- hosts: zookeeper
+  become: true
+  vars:
+    java_version: openjdk-8-jdk
+  roles:
+    - install-java
+
+

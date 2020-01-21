@@ -1,0 +1,23 @@
+[Unit]
+Description=Solr Cloud Daemon
+Documentation=http://solr.apache.org
+Requires=network.target
+After=network.target
+
+[Service]    
+Type=forking
+WorkingDirectory={{ dest }}
+User={{ user_name }}
+Group={{ user_name }}
+PIDFile={{ dest }}/solr.pid
+Environment=SOLR_INCLUDE=/etc/default/solr.in.sh
+Environment=RUNAS={{ user_name }}
+Environment=SOLR_INSTALL_DIR={{ dest }}
+ExecStart={{ dest }}/bin/solr start
+ExecStop={{ dest }}/bin/solr stop
+ExecReload={{ dest }}/bin/solr restart
+TimeoutSec=120
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

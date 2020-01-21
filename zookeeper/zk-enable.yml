@@ -1,0 +1,10 @@
+---
+- hosts: zookeeper
+  vars:
+    package: zookeeper
+  tasks:
+  - name: Configure zookeeper to restart on a reboot
+    systemd:
+      name: "{{ package }}"
+      state: started
+      enabled: yes
