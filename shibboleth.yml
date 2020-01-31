@@ -28,7 +28,12 @@
         state: directory
       loop:
         - /var/www/{{ domain }}
-        - /etc/apache2/ss;
+        - /etc/apache2/ssl
+    - name: copy default index.html file
+      copy:
+        src: /var/www/html/index.html
+        dest: /var/www/{{ domain }}
+        remote_src: yes
     - name: upload the lappsgrid key and certificate
       copy:
         src: /Users/suderman/certs/2018/{{ item }}
@@ -111,6 +116,12 @@
         name: shibboleth-key
       vars:
         type: encrypt
+    - name: make sure shibd owns its directory
+      file:
+        path: /etc/shibboleth
+        owner: _shibd
+        group: _shibd
+        recurse: yes
     - name: restart and enable shibd
       service:
         name: shibd
