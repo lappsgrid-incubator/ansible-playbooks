@@ -3,6 +3,8 @@
   vars:
     http_port: 80
     domain: sso.lappsgrid.org
+    hostname: "{{ domain }}"
+    entity_id: http://{{ domain }}/galaxy/shibboleth
     required_packages:
       - emacs
       - apache2
@@ -20,6 +22,23 @@
         update_cache: yes
       loop: "{{ required_packages }}"
     # Apache configuration
+    - name: create required directories
+      file:
+        path: /var/www/{{ domain }}
+        state: directory
+      loop:
+        - /var/www/{{ domain }}
+        - /etc/apache2/ss;
+    - name: upload the lappsgrid key and certificate
+      copy:
+        src: /Users/suderman/certs/2018/{{ item }}
+        dest: /etc/apache2/ssl/
+        #owner: _shibd
+        #group: _shibd
+      loop:
+        - lappsgrid.key
+        - lappsgrid.crt
+        - lappsgrid-root.crt
     - name: enable mod_rewrite
       apache2_module:
         name: rewrite
@@ -78,36 +97,25 @@
       copy:
         src: files/shibboleth2.xml
         dest: /etc/shibboleth/shibboleth2.xml
-      notify:
-        - restart shibd
     - name: Get the incommon signing key
       get_url:
         url: http://md.incommon.org/certs/inc-md-cert-mdq.pem
         dest: /etc/shibboleth
-      notify:
-        - restart shibd
     - name: Generate Shibboleth signing key and certificate
-      include_role: shibboleth-key
+      include_role:
+        name: shibboleth-key
       vars:
         type: signing
-      notify:
-        - restart shibd
     - name: Generate Shibboleth encrypt key and certificate
-      include_role: shibboleth-key
+      include_role:
+        name: shibboleth-key
       vars:
         type: encrypt
-      notify:
-        - restart shibd
-    - name: upload the lappsgrid key and certificate
-      copy:
-        src: /Users/suderman/certs/2018/{{ item }}
-        dest: /etc/apache2/ssl
-        owner: _shibd
-        group: _shibd
-      loop:
-        - lappsgrid.key
-        - lappsgrid.crt
-        - lappsgrid-root.crt
+    - name: restart and enable shibd
+      service:
+        name: shibd
+        state: restarted
+        enabled: yes
   handlers:
     - name: restart apache
       service:
