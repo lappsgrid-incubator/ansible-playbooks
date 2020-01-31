@@ -24,7 +24,7 @@
     # Apache configuration
     - name: create required directories
       file:
-        path: /var/www/{{ domain }}
+        path: "{{ item }}"
         state: directory
       loop:
         - /var/www/{{ domain }}
