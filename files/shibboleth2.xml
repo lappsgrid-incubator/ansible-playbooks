@@ -39,7 +39,7 @@
             shibboleth.brandeis.edu/metadata.xml
             <SSO entityyId="https://shibboleth.brandeis.edu/idp/shibboleth">SAML2</SSO>
             -->
-            <SSO entityId="https://samltest.id/saml/idp">SAML2</SSO>
+            <SSO entityID="https://samltest.id/saml/idp">SAML2</SSO>
 
             <!-- SAML and local-only logout. -->
             <Logout>SAML2 Local</Logout>
