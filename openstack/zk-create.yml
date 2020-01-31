@@ -15,5 +15,3 @@
       nics:
       - net-id: "{{ lapps_network }}"
     loop: "{{ zk_ids }}"
-
-      

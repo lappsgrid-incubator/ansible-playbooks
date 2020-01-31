@@ -1,0 +1,119 @@
+---
+- hosts: shibboleth
+  vars:
+    http_port: 80
+    domain: sso.lappsgrid.org
+    required_packages:
+      - emacs
+      - apache2
+      - ntp
+  become: yes
+  tasks:
+    - name: Install Shibboleth repository
+      apt:
+        state: present
+        deb: https://pkg.switch.ch/switchaai/ubuntu/dists/bionic/main/binary-all/misc/switchaai-apt-source_1.0.0ubuntu1_all.deb
+    - name: Install required software
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop: "{{ required_packages }}"
+    # Apache configuration
+    - name: enable mod_rewrite
+      apache2_module:
+        name: rewrite
+        state: present
+      notify:
+        - restart apache
+    - name: copy ports configuration
+      copy:
+        src: files/ports.conf
+        dest: /etc/apache2
+      notify:
+        - restart apache
+#    - name: listen on port {{ http_port }}
+#      lineinfile:
+#        dest: /etc/apache2/ports.conf
+#        regexp: "^Listen "
+#        line: Listen {{ http_port }}
+#      notify:
+#        - restart_apache
+#    - name: configure the virtual host for port {{ http_port }}
+#      template:
+#        src: templates/virtualhost.conf.j2
+#        dest: /etc/apache2/sites-available/{{ domain }}.conf
+    - name: configure apache for SSL
+      vars:
+        key: /etc/apache2/ssl/lappsgrid.key
+        certificate: /etc/apache2/ssl/lappsgrid.crt
+        root_certificate: /etc/apache2/ssl/lappsgrid-root.crt
+      template:
+        src: templates/virtualhost-ssl.conf.j2
+        dest: /etc/apache2/sites-available/lappsgrid-ssl.conf
+#    - name: enable {{ domain }}
+#      command: a2ensite {{ domain }}
+#      args:
+#        creates: /etc/apache2/sites-enabled/{{ domain }}
+#      notify:
+#        - restart apache
+    - name: enable mod_ssl
+      apache2_module:
+        name: ssl
+        state: present
+    - name: enable SSL site
+      command: a2ensite lappsgrid-ssl
+      args:
+        creates: /etc/apache2/sites-enables/lappsgrid-ssl
+      notify:
+        - restart apache
+    # Shibboleth setup and configuration
+    - name: Install Shibboleth
+      apt:
+        name: shibboleth
+        state: present
+        install_recommends: yes
+        autoremove: yes
+    - name: Copy our shibboleth2.xml
+      copy:
+        src: files/shibboleth2.xml
+        dest: /etc/shibboleth/shibboleth2.xml
+      notify:
+        - restart shibd
+    - name: Get the incommon signing key
+      get_url:
+        url: http://md.incommon.org/certs/inc-md-cert-mdq.pem
+        dest: /etc/shibboleth
+      notify:
+        - restart shibd
+    - name: Generate Shibboleth signing key and certificate
+      include_role: shibboleth-key
+      vars:
+        type: signing
+      notify:
+        - restart shibd
+    - name: Generate Shibboleth encrypt key and certificate
+      include_role: shibboleth-key
+      vars:
+        type: encrypt
+      notify:
+        - restart shibd
+    - name: upload the lappsgrid key and certificate
+      copy:
+        src: /Users/suderman/certs/2018/{{ item }}
+        dest: /etc/apache2/ssl
+        owner: _shibd
+        group: _shibd
+      loop:
+        - lappsgrid.key
+        - lappsgrid.crt
+        - lappsgrid-root.crt
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+    - name: restart shibd
+      service:
+        name: shibd
+        state: restarted
