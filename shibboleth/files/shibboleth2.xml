@@ -37,9 +37,9 @@
             </SSO>
             <SSO entityId="https://samltest.id/saml/idp" discoveryProtocol="SAMLDS">SAML2</SSO>
             shibboleth.brandeis.edu/metadata.xml
-            <SSO entityyId="https://shibboleth.brandeis.edu/idp/shibboleth">SAML2</SSO>
-            -->
             <SSO entityID="https://samltest.id/saml/idp">SAML2</SSO>
+            -->
+            <SSO entityyID="https://shibboleth.brandeis.edu/idp/shibboleth">SAML2</SSO>
 
             <!-- SAML and local-only logout. -->
             <Logout>SAML2 Local</Logout>
@@ -115,8 +115,8 @@
         </MetadataProvider>
         -->
         <MetadataProvider type="XML" validate="true"
-                          url="https://samltest.id/saml/idp"
-                          backingFilePath="SAMLtest.xml">
+                          url="https://shibboleth.brandeis.edu/metadata.xml"
+                          backingFilePath="brandeis-metadata.xml">
             <!-- You should always check the signature and freshness of remote
                     metadata.  It's commented out until you get the basics working.
                  <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
