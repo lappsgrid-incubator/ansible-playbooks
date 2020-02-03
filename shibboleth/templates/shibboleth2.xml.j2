@@ -10,7 +10,7 @@
     -->
 
     <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
-    <ApplicationDefaults entityID="https://sso.lappsgrid.org/galaxy/shibboleth"
+    <ApplicationDefaults entityID=" {{ entity_id }}"
                          REMOTE_USER="eppn subject-id pairwise-id persistent-id"
                          cipherSuites="DEFAULT:!EXP:!LOW:!aNULL:!eNULL:!DES:!IDEA:!SEED:!RC4:!3DES:!kRSA:!SSLv2:!SSLv3:!TLSv1:!TLSv1.1">
 
@@ -30,16 +30,7 @@
             entityID property and adjust discoveryURL to point to discovery service.
             You can also override entityID on /Login query string, or in RequestMap/htaccess.
             -->
-            <!--
-            <SSO entityID="http://idp.vassar.edu/saml"
-                 discoveryProtocol="SAMLDS" discoveryURL="https://ds.example.org/DS/WAYF">
-                SAML2
-            </SSO>
-            <SSO entityId="https://samltest.id/saml/idp" discoveryProtocol="SAMLDS">SAML2</SSO>
-            shibboleth.brandeis.edu/metadata.xml
-            <SSO entityyId="https://shibboleth.brandeis.edu/idp/shibboleth">SAML2</SSO>
-            -->
-            <SSO entityId="https://samltest.id/saml/idp">SAML2</SSO>
+            <SSO entityyID="{{ sso_entity_id }}">SAML2</SSO>
 
             <!-- SAML and local-only logout. -->
             <Logout>SAML2 Local</Logout>
@@ -97,7 +88,7 @@
         </MetadataProvider>
 
         <MetadataProvider type="XML" validate="true"
-                          url-="https://md.incommon.org/InCommon/InCommon-metadata.xml"
+                          url="https://md.incommon.org/InCommon/InCommon-metadata.xml"
                           backingFilePath="/opt/shibboleth/incommon-metadata.xml" maxRefreshDelay="7200">
             <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
             <MetadataFilter type="Signature" certificate="/opt/shibboleth/incommon-cd-cert.pem" verifyBackup="false"/>
@@ -115,14 +106,19 @@
         </MetadataProvider>
         -->
         <MetadataProvider type="XML" validate="true"
-                          url="https://samltest.id/saml/idp"
-                          backingFilePath="SAMLtest.xml">
+                          url="https://shibboleth.brandeis.edu/metadata.xml"
+                          backingFilePath="brandeis-metadata.xml">
             <!-- You should always check the signature and freshness of remote
                     metadata.  It's commented out until you get the basics working.
                  <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
                  <MetadataFilter type="Signature" certificate="signet.crt" verifyBackup="false"/>
                -->
         </MetadataProvider>
+        <MetadataProvider type="XML" validate="true"
+            url="http://idp.vassar.edu/metadata.xml"
+            backingFilePath="vassar-metadata.xml">
+        </MetadataProvider>
+
         <!-- Map to extract attributes from SAML assertions. -->
         <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
 

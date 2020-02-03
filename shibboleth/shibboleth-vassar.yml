@@ -1,0 +1,148 @@
+---
+- hosts: shibboleth
+  vars:
+    http_port: 80
+    domain: idp.lappsgrid.org
+    hostname: "{{ domain }}"
+    entity_id: https://{{ domain }}/galaxy
+    sso_entity_id: http://idp.vassar.edu/saml
+    # The location of the LAPPS Grid certificates and private key.  These must be loaded from a secure
+    # location on your local machine.
+    # DO NOT CHECK THE PRIVATE KEY INTO SOURCE CONTROL!
+    certificate_path: /Users/suderman/certs/2018
+    ssl_path: /etc/apache2/ssl
+    required_packages:
+      - emacs
+      - apache2
+      - ntp
+  become: yes
+  tasks:
+    - name: Install Shibboleth repository
+      apt:
+        state: present
+        deb: https://pkg.switch.ch/switchaai/ubuntu/dists/bionic/main/binary-all/misc/switchaai-apt-source_1.0.0ubuntu1_all.deb
+    - name: Install required software
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop: "{{ required_packages }}"
+    # Apache configuration
+    - name: create required directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        recurse: yes
+      loop:
+        - /var/www/{{ domain }}
+        - "{{ ssl_path }}/certs"
+        - "{{ ssl_path }}/private"
+    - name: copy default index.html file
+      copy:
+        src: /var/www/html/index.html
+        dest: /var/www/{{ domain }}
+        remote_src: yes
+    - name: upload the lappsgrid key and certificate
+      copy:
+        src: "{{ certificate_path }}/{{ item.file }}"
+        dest: "{{ ssl_path }}/{{ item.dir }}/{{ item.file }}"
+      loop:
+        - file: lappsgrid.key
+          dir: private
+        - file: lappsgrid.crt
+          dir: certs
+        - file: lappsgrid-root.crt
+          dir: certs
+    - name: make sure permissions are correct for the key and certificates
+      file:
+        path: "{{ item.file }}"
+        mode: "{{ item.mode }}"
+        recurse: yes
+      loop:
+        - file: "{{ ssl_path }}/certs"
+          mode: '644'
+        - file: "{{ ssl_path }}/private"
+          mode: '600'
+    - name: copy ports configuration
+      copy:
+        src: files/ports.conf
+        dest: /etc/apache2
+      notify:
+        - restart apache
+    - name: configure apache for SSL
+      vars:
+        key: "{{ ssl_path }}/private/lappsgrid.key"
+        certificate: "{{ ssl_path }}/certs/lappsgrid.crt"
+        root_certificate: "{{ ssl_path }}/certs/lappsgrid-root.crt"
+      template:
+        src: templates/virtualhost-ssl.conf.j2
+        dest: /etc/apache2/sites-available/lappsgrid-ssl.conf
+#    - name: enable {{ domain }}
+#      command: a2ensite {{ domain }}
+#      args:
+#        creates: /etc/apache2/sites-enabled/{{ domain }}
+#      notify:
+#        - restart apache
+    - name: enable mod_rewrite
+      apache2_module:
+        name: rewrite
+        state: present
+      notify:
+        - restart apache
+    - name: enable mod_ssl
+      apache2_module:
+        name: ssl
+        state: present
+      notify:
+        - restart apache
+    - name: enable SSL site
+      command: a2ensite lappsgrid-ssl
+      args:
+        creates: /etc/apache2/sites-enables/lappsgrid-ssl
+      notify:
+        - restart apache
+    # Shibboleth setup and configuration
+    - name: Install Shibboleth
+      apt:
+        name: shibboleth
+        state: present
+        install_recommends: yes
+        autoremove: yes
+    - name: Copy our shibboleth2.xml
+      template:
+        src: templates/shibboleth2.xml.j2
+        dest: /etc/shibboleth/shibboleth2.xml
+    - name: Get the incommon signing key
+      get_url:
+        url: http://md.incommon.org/certs/inc-md-cert-mdq.pem
+        dest: /etc/shibboleth
+    - name: Generate Shibboleth signing key and certificate
+      include_role:
+        name: shibboleth-key
+      vars:
+        type: signing
+    - name: Generate Shibboleth encrypt key and certificate
+      include_role:
+        name: shibboleth-key
+      vars:
+        type: encrypt
+    - name: make sure shibd owns its directory
+      file:
+        path: /etc/shibboleth
+        owner: _shibd
+        group: _shibd
+        recurse: yes
+    - name: restart and enable shibd
+      service:
+        name: shibd
+        state: restarted
+        enabled: yes
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+    - name: restart shibd
+      service:
+        name: shibd
+        state: restarted

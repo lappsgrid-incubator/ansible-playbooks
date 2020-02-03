@@ -1,0 +1,8 @@
+---
+- hosts: shibboleth
+  tasks:
+    - name: Restart shibd and apache2
+      service:
+        name: "{{ item }}"
+        state: restarted
+      loop: [ shibd, apache2 ]
