@@ -1,0 +1,18 @@
+---
+- hosts: shibboleth
+  vars:
+    att: entityID
+    file: /etc/shibboleth/shibboleth2.xml
+  tasks:
+    - name: Remove attribute {{ att }}
+      xml:
+        path: "{{ file }}"
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:Sessions/s:SSO/@{{ att }}
+        state: absent
+    - debug:
+        var: {{ item }}
+      with_file:
+        - "{{ file }}
+#    - name: check output

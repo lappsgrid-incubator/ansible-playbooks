@@ -1,0 +1,19 @@
+---
+- hosts: shibboleth
+  vars:
+    shib_xml: /tmp/shibboleth2.xml
+  tasks:
+    - name: add a new MetadataProvider element
+      xml:
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        path: "{{ shib_xml }}"
+        xpath: /s:SPConfig/s:ApplicationDefaults
+        set_children:
+          - MetadataProvider:
+              type: MDQ
+              id: incommon
+              ignoreTransport: 'true'
+              cacheDirectory: inc-mdq-cache
+              maxCacheDuratation: '86400'
+              minCacheDuration: '60'

@@ -1,0 +1,47 @@
+---
+- hosts: shibboleth
+  vars:
+    original: /etc/shibboleth/shibboleth2.xml
+    shib_xml: /tmp/shibboleth2.xml
+  tasks:
+    - name: Make a copy for testing
+      copy:
+        src: "{{ original }}"
+        dest: "{{ shib_xml }}"
+        remote_src: yes
+    - name: remove existing MetadataProviderElements
+      xml:
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        path: "{{ shib_xml }}"
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:MetadataProvider
+        state: absent
+    - name: add a new MetadataProvider element
+      xml:
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        path: "{{ shib_xml }}"
+        xpath: /s:SPConfig/s:ApplicationDefaults
+        pretty_print: yes
+        add_children:
+          - MetadataProvider:
+              type: MDQ
+              id: incommon
+              ignoreTransport: true
+              cacheDirectory: inc-mdq-cache
+              maxCacheDuratation: '86400'
+              minCacheDuration: '60'
+    - name: Add the MetadataFilters
+      xml:
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        path: "{{ shib_xml }}"
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:MetadataProvider
+        pretty_print: yes
+        add_children:
+          - MetadataFilter:
+              type: Signature
+              certificate: inc-md-cert-mdq.pem
+          - MedataFilter:
+              type: RequireValidUntil
+              maxValidityInterval: '1209600'
