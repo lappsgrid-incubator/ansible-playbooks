@@ -1,0 +1,19 @@
+---
+- hosts: shibboleth
+  tasks:
+    - name: stop the Shibboleth server
+      service:
+        name: shibd
+        state: stopped
+    - name: copy the new file to the server
+      copy:
+        src: files/shibboleth2.xml
+        dest: /etc/shibboleth/shibboleth2.xml
+    - name: restart the server
+      service:
+        name: shibd
+        state: started
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted

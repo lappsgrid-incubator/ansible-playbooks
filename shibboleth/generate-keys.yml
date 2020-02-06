@@ -1,0 +1,17 @@
+---
+- hosts: shibboleth
+  vars:
+    hostname: sso.lappsgrid.org
+    entity_id: https://{{ hostname }}/galaxy/shibboleth
+  roles:
+    - role: shibboleth-key
+      vars:
+        type: signing
+    - role: shibboleth-key
+      vars:
+        type: encrypt
+  post_tasks:
+    - name: restart shibd
+      service:
+        name: shibd
+        state: restarted
