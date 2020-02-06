@@ -4,6 +4,8 @@
 
     <OutOfProcess tranLogFormat="%u|%s|%IDP|%i|%ac|%t|%attr|%n|%b|%E|%S|%SS|%L|%UA|%a" />
 
+    <InProcess checkSpoofing="true" spookKey="HYa!W*B:MNbqv-W6bE)0!37tpI^91aHb*7n+c^@athUP}*5):!QpLgHcf^FDJFTe" />
+
     <!--
     By default, in-memory StorageService, ReplayCache, ArtifactMap, and SessionCache
     are used. See example-shibboleth2.xml for samples of explicitly configuring them.
@@ -11,7 +13,7 @@
 
     <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
     <ApplicationDefaults entityID="https://sso.lappsgrid.org/galaxy/shibboleth"
-                         REMOTE_USER="eppn subject-id pairwise-id persistent-id"
+                         REMOTE_USER="eppn persistent-id"
                          cipherSuites="DEFAULT:!EXP:!LOW:!aNULL:!eNULL:!DES:!IDEA:!SEED:!RC4:!3DES:!kRSA:!SSLv2:!SSLv3:!TLSv1:!TLSv1.1">
 
         <!--
