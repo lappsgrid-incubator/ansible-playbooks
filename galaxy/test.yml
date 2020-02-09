@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  vars:
+    galaxy_repo: galaxy repo
+    git:
+      galaxy:
+        repo: "{{ galaxy_repo }}"
+        home: "{{ galaxy_home }}"
+      mods:
+        repo: mods repo
+        home: /mods
+  tasks:
+    - name: print vars
+      debug:
+        var: git.galaxy.repo
+

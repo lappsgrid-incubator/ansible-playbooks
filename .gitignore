@@ -6,3 +6,5 @@
 .DS_Store
 *.tgz
 *.gz
+galaxy/roles/geerlingguy.postgresql/
+galaxy/private/

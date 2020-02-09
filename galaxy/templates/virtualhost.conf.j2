@@ -1,7 +1,8 @@
 <VirtualHost *:443>
+    ServerName galaxy.lappsgrid.org
     ServerAdmin webmaster@lappsgrid.org
 
-    DocumentRoot /var/www/{{ domain }}
+    DocumentRoot /var/www/galaxy
 
     # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
     # error, crit, alert, emerg.
@@ -9,12 +10,12 @@
     # modules, e.g.
     #LogLevel info ssl:warn
 
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    ErrorLog {{ log_dir }}/error.log
+    CustomLog {{ log_dir }}/access.log combined
 
     AllowEncodedSlashes NoDecode
     ProxyPass / http://127.0.0.1:8080/
-    
+
     RewriteEngine on
     RewriteRule ^/static/style/(.*) /home/galaxy/galaxy/static/june_2007_style/blue/$1 [L]
     RewriteRule ^/static/scripts/(.*) /home/galaxy/galaxy/static/scripts/packed/$1 [L]
@@ -33,9 +34,7 @@
             SSLOptions +StdEnvVars
     </Directory>
 
-    <Location "/">
-        RequestHeader set X-URL-SCHEME https
-        XSendFile on
-        XSendFilePath /
-    </Location>
+#    <Location "/">
+#        RequestHeader set X-URL-SCHEME https
+#    </Location>
 </VirtualHost>

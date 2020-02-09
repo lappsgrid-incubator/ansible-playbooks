@@ -1,0 +1,28 @@
+---
+- hosts: galaxy
+  tasks:
+    - name: Determine Java package name (Debian|Ubuntu)
+      set_fact:
+        java_package: openjdk-8-jdk
+        java_home: /usr/lib/jvm/java-8-openjdk-amd64
+      when: ansible_os_family == 'Debian'
+    - name: Determine Java package name (Redhat|CentOS)
+      set_fact:
+        java_package: java-1.8.0-openjdk
+        java_home: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-0.el7_7.x86_64/jre
+      when: ansible_os_family == 'RedHat'
+    - name: Install packages
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - git
+        - zip
+        - unzip
+        - emacs
+        - "{{ java_package }}"
+    - name: Configure JAVA_HOME
+      template:
+        src: templates/java_home.sh.j2
+        dest: /etc/profile.d/java_home.sh
+        mode: '0744'

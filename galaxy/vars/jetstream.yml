@@ -1,0 +1,12 @@
+network: 588397c7-8d91-4db4-b3ea-9d293209221f
+
+ubuntu:
+  name: galaxy-ubuntu
+  image: 590f7ed2-9bc6-4c74-b2e3-9a92b4a9e5ad
+  ip: 149.165.169.179
+
+centos:
+  name: galaxy-centos
+  image: 776a4473-c7c8-4f59-a88e-40e8cb3824be
+  ip: 149.165.156.140
+

@@ -98,7 +98,7 @@
     - name: enable SSL site
       command: a2ensite lappsgrid-ssl
       args:
-        creates: /etc/apache2/sites-enables/lappsgrid-ssl
+        creates: /etc/apache2/sites-enabled/lappsgrid-ssl
       notify:
         - restart apache
     # Shibboleth setup and configuration

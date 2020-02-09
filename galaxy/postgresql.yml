@@ -1,0 +1,10 @@
+---
+- hosts: galaxy
+  vars_files:
+    - private/postgresql.yml
+  pre_tasks:
+    - include_tasks: tasks/redhat-postgresql.yml
+      when: ansible_os_family == 'RedHat'
+  roles:
+    - role: geerlingguy.postgresql
+      become: yes

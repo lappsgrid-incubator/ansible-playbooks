@@ -6,29 +6,45 @@
     # location on your local machine.
     # DO NOT CHECK THE PRIVATE KEY INTO SOURCE CONTROL!
     certificate_path: /Users/suderman/certs/2018
-    ssl_path: /etc/apache/ssl
-    required_packages:
-      - apache2
-      - emacs
+    #ssl_path: /etc/ssl
     required_modules:
+      - headers
       - ssl
       - rewrite
       - proxy
-      - http_proxy
-      - xsendfile
+      - proxy_http
   tasks:
-    - name: Install required package {{ item }}
-      apt:
-        name: "{{ item }}"
+    - name: System configuration (Debian|Ubuntu)
+      set_fact:
+        os_debian: yes
+        os_redhat: no
+        package_name: apache2
+        config_path: /etc/apache2/sites-available
+        ssl_path: /etc/apache2/ssl
+        log_dir: /var/log/apache2
+      when: ansible_os_family == 'Debian'
+    - name: System configuration (RedHat|CentOS)
+      set_fact:
+        os_debian: no
+        os_redhat: yes
+        package_name: httpd
+        config_path: /etc/httpd/conf.d
+        ssl_path: /etc/httpd/ssl
+        log_dir: /var/log/httpd
+      when: ansible_os_family == 'RedHat'
+    - name: Install {{ package_name }}
+      package:
+        name: "{{ package_name }}"
         state: present
-        update_cache: yes
-      loop: "{{ required_packages }}"
     - name: Make directories
       file:
-        path: "{{ ssl_path }}/{{ item }}"
+        path: "{{ item }}"
         state: directory
         recurse: yes
-      loop: [ 'certs', 'private' ]
+      loop:
+        - "{{ ssl_path }}/certs"
+        - "{{ ssl_path }}/private"
+        - /var/www/galaxy
     - name: Upload the lappsgrid key and certificate
       copy:
         src: "{{ certificate_path }}/{{ item.file }}"
@@ -50,6 +66,21 @@
           mode: '644'
         - file: "{{ ssl_path }}/private"
           mode: '600'
+    - name: Enable required apache modules
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ required_modules }}"
+    - name: Install mod_ssl (Debian|Ubuntu)
+      apache2_module:
+        name: ssl
+        state: present
+      when: os_debian
+    - name: Install mod_ssl (RedHat|CentOS)
+      package:
+        name: mod_ssl
+        state: present
+      when: os_redhat
     - name: Configure the virtual host
       vars:
         key: "{{ ssl_path }}/private/lappsgrid.key"
@@ -57,9 +88,14 @@
         root_certificate: "{{ ssl_path }}/certs/lappsgrid-root.crt"
       template:
         src: templates/virtualhost.conf.j2
-        dest: /etc/apache2/sites-available/galaxy.conf
-    - name: Enable required apache modules
-      apache2_module:
-        name: "{{ item }}"
-        state: present
-      loop: "{{ required_modules }}"
+        dest: "{{ config_path }}/galaxy.conf"
+    - name: Enable the galaxy virtual host
+      command: a2ensite galaxy
+      args:
+        creates: /etc/apache2/sites-enabled/galaxy
+      when: os_debian
+    - name: Restart apache and ensure it is enabled on reboot
+      service:
+        name: "{{ package_name }}"
+        state: restarted
+        enabled: yes

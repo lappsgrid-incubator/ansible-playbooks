@@ -1,0 +1,10 @@
+---
+- name: Install required packages
+  package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ required_packages }}"
+- name: Install Java
+  package:
+    name: java-1.8.0-openjdk
+    state: present

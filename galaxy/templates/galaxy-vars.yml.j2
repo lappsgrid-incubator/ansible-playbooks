@@ -1,0 +1,17 @@
+---
+galaxy:
+  port: 8000
+  secret: "{{ id_secret.content }}"
+  remote_user: "{{ remote_user_secret.content }}"
+db:
+  username: galaxy
+  password: "{{ db_password.content }}"
+
+repo: {{ repo }}
+galaxy_base: {{ galaxy_base }}
+galaxy_branch: lapps
+galaxy_home: "{{ galaxy_base }}/galaxy"
+galaxy_repo: "{{ repo }}/Galaxy.git"
+mods_branch: master
+mods_home: "{{ galaxy_base }}/mods"
+mods_repo: "{{ repo }}/GalaxyMods.git"

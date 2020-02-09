@@ -1,0 +1,16 @@
+
+- hosts: localhost
+  vars_files:
+    vars/jetstream.yml
+  tasks:
+    - name: Setup
+      include_vars: vars/jetstream.yml
+    - name: Delete {{ item.name }} instance
+      os_server:
+        state: absent
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+      loop:
+        - "{{ ubuntu }}"
+        - "{{ centos }}"
+

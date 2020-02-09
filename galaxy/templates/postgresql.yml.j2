@@ -1,0 +1,9 @@
+---
+postgresql_python_library: python-psycopg2
+
+postgresql_databases:
+  - name: galaxy
+
+postgresql_users:
+  - name: galaxy
+    password: "{{ db_password.content  }}"

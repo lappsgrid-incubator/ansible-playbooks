@@ -1,0 +1,57 @@
+---
+- hosts: galaxy
+  become: yes
+  vars:
+    groovy_version: 2.5.9
+    filename: apache-groovy-binary-{{ groovy_version }}
+    zipfile: "{{ filename }}.zip"
+    download_url: https://dl.bintray.com/groovy/maven/{{ zipfile }}
+    checksum_url: https://www.apache.org/dist/groovy/{{ groovy_version }}/distribution/{{ zipfile }}.sha256
+    dest: /usr/lib/groovy
+    #sha256: https://www.apache.org/dist/groovy/2.5.9/distribution/apache-groovy-binary-2.5.9.zip.sha256
+  tasks:
+    - name: Create destination directory
+      file:
+        path: "{{ dest }}"
+        state: directory
+    - name: Download the checksum from {{ checksum_url }}
+      uri:
+        url: "{{ checksum_url }}"
+        return_content: yes
+      register: checksum
+    - name: Download the file from {{ download_url }}
+      get_url:
+        url: "{{ download_url }}"
+        dest: /tmp
+        checksum: sha256:{{ checksum.content }}
+#    - name: Download binary archive and verify the checksum
+#      get_url:
+#        url: "{{ download_url }}"
+#        dest: /tmp
+#        checksum: sha256:https://www.apache.org/dist/groovy/2.5.9/distribution/apache-groovy-binary-2.5.9.zip.sha256
+    - name: Unzip the archive
+      unarchive:
+        src: /tmp/{{ zipfile }}
+        dest: "{{ dest }}"
+        remote_src: yes
+    - name: Create symbolic link for current Groovy version
+      file:
+        src: "{{ dest }}/groovy-{{ groovy_version }}"
+        dest: "{{ dest }}/current"
+        state: link
+    - name: Copy Groovy profile to /etc/profile.d
+      copy:
+        src: files/groovy-profile.sh
+        dest: /etc/profile.d/groovy.sh
+        mode: '0744'
+    - name: Allow Groovy scripts to be run as sudo
+      copy:
+        src: files/groovy-sudoers.sh
+        dest: /etc/sudoers.d/groovy
+    - name: Cleanup
+      file:
+        path: /tmp/{{ zipfile }}
+        state: absent
+
+
+

@@ -1,0 +1,29 @@
+---
+- hosts: galaxy
+  become: yes
+  vars:
+    tarball: lsd-latest.tgz
+    dest: /var/lib/lsd
+  tasks:
+    - name: Create the destination {{ dest }}
+      file:
+        path: "{{ dest }}"
+        state: directory
+    - name: Download the tarball
+      get_url:
+        url: https://downloads.lappsgrid.org/{{ tarball }}
+        dest: /tmp
+    - name: Unpack {{ tarball }}
+      unarchive:
+        src: /tmp/{{tarball }}
+        dest: "{{ dest }}"
+        remote_src: yes
+    - name: Create a link in /usr/local/bin
+      file:
+        src: "{{ dest }}/lsd"
+        dest: /usr/local/bin/lsd
+        state: link
+        mode: u+x
+    - name: Cleanup
+      file:
+        path: /tmp/{{ tarball }}

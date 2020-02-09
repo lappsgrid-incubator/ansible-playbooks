@@ -1,0 +1,38 @@
+---
+- hosts: galaxy
+  vars_files:
+    - private/galaxy.yml
+  tasks:
+    - name: Create the galaxy user account
+      user:
+        name: galaxy
+        system: yes
+        createhome: yes
+        state: present
+        shell: /bin/bash
+
+    - name: Clone the Galaxy repository
+      git:
+        repo: "{{ item.repo }}"
+        dest: "{{ item.home }}"
+        version: "{{ item.branch }}"
+      loop:
+        - home: "{{ galaxy_home }}"
+          branch: "{{ galaxy_branch }}"
+          repo: "{{ galaxy_repo }}"
+        - home: "{{ mods_home }}"
+          branch: "{{ mods_branch }}"
+          repo: "{{ mods_repo }}"
+    - name: Configure the galaxy.yml file
+      template:
+        src: templates/galaxy-config.yml.j2
+        dest: "{{ galaxy_home }}/config/galaxy.yml"
+    - name: Make sure the Galaxy user owns its directories
+      file:
+        path: "{{ item }}"
+        owner: galaxy
+        group: galaxy
+        recurse: yes
+      loop:
+        - "{{ galaxy_home }}"
+        - "{{ mods_home }}"

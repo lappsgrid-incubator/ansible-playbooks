@@ -1,0 +1,9 @@
+---
+- name: Install postgresql-devel
+  package:
+    name: postgresql-devel
+    state: present
+- name: Make sure psycopg2 is installed.
+  pip:
+    name: psycopg2
+    state: present
