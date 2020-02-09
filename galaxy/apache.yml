@@ -9,7 +9,6 @@
     #ssl_path: /etc/ssl
     required_modules:
       - headers
-      - ssl
       - rewrite
       - proxy
       - proxy_http
