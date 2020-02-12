@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  vars:
+    ip: 96.248.38.219
+  vars_files:
+    - vars/jetstream.yml
+  tasks:
+    - name: SSH, HTTP, and HTTPS
+      os_security_group_rule:
+        security_group: "{{ security_group }}"
+        protocol: tcp
+        port_range_min: "{{ item }}"
+        port_range_max: "{{ item }}"
+        remote_ip_prefix: "{{ ip }}"
+      loop: [ 22, 80, 443 ]
+    - name: Web apps
+      os_security_group_rule:
+        security_group: "{{ security_group }}"
+        protocol: tcp
+        port_range_min: 8000
+        port_range_max: 8999
+        remote_ip_prefix: "{{ ip }}"
