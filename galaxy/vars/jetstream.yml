@@ -1,4 +1,6 @@
 network: 588397c7-8d91-4db4-b3ea-9d293209221f
+flavor: m1.small
+security_group: galaxy
 
 ubuntu:
   name: galaxy-ubuntu
@@ -11,3 +13,6 @@ centos:
   image: 709f68b4-2e79-46db-ac8d-43b111d52ffb
   ip: 149.165.156.140
 
+servers:
+  - "{{ ubuntu }}"
+  - "{{ centos }}"

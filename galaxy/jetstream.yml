@@ -1,7 +1,5 @@
 
 - hosts: localhost
-  vars:
-    flavor: m1.small
   vars_files:
     - vars/jetstream.yml
   tasks:
@@ -12,12 +10,10 @@
         image: "{{ item.image }}"
         flavor: "{{ flavor }}"
         key_name: lappsgrid-shared-key
-        security_groups: galaxy
+        security_groups: "{{ security_group }}"
         floating_ips:
           - "{{ item.ip }}"
         nics:
           - net-id: "{{ network }}"
-      loop:
-        - "{{ ubuntu }}"
-        - "{{ centos }}"
+      loop: "{{ servers }}"
 

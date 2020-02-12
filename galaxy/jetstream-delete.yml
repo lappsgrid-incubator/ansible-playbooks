@@ -10,7 +10,5 @@
         state: absent
         name: "{{ item.name }}"
         image: "{{ item.image }}"
-      loop:
-        - "{{ ubuntu }}"
-        - "{{ centos }}"
+      loop: "{{ servers }}"
 
