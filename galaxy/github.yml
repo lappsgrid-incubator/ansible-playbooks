@@ -1,6 +1,7 @@
 ---
 - hosts: galaxy
   vars_files:
+    - vars/defaults.yml
     - private/galaxy.yml
   tasks:
     - name: Create the galaxy user account
@@ -17,22 +18,24 @@
         dest: "{{ item.home }}"
         version: "{{ item.branch }}"
       loop:
-        - home: "{{ galaxy_home }}"
-          branch: "{{ galaxy_branch }}"
-          repo: "{{ galaxy_repo }}"
-        - home: "{{ mods_home }}"
-          branch: "{{ mods_branch }}"
-          repo: "{{ mods_repo }}"
+        - "{{ galaxy }}"
+        - "{{ mods }}"
+#        - home: "{{ galaxy_home }}"
+#          branch: "{{ galaxy_branch }}"
+#          repo: "{{ galaxy_repo }}"
+#        - home: "{{ mods_home }}"
+#          branch: "{{ mods_branch }}"
+#          repo: "{{ mods_repo }}"
     - name: Configure the galaxy.yml file
       template:
-        src: templates/galaxy-config.yml.j2
-        dest: "{{ galaxy_home }}/config/galaxy.yml"
+        src: templates/galaxy.ini.j2
+        dest: "{{ galaxy.home }}/config/galaxy.ini"
     - name: Make sure the Galaxy user owns its directories
       file:
         path: "{{ item }}"
-        owner: galaxy
-        group: galaxy
+        owner: "{{ galaxy.user }}"
+        group: "{{ galaxy.user }}"
         recurse: yes
       loop:
-        - "{{ galaxy_home }}"
-        - "{{ mods_home }}"
+        - "{{ galaxy.home }}"
+        - "{{ mods.home }}"

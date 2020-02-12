@@ -8,7 +8,6 @@
     download_url: https://dl.bintray.com/groovy/maven/{{ zipfile }}
     checksum_url: https://www.apache.org/dist/groovy/{{ groovy_version }}/distribution/{{ zipfile }}.sha256
     dest: /usr/lib/groovy
-    #sha256: https://www.apache.org/dist/groovy/2.5.9/distribution/apache-groovy-binary-2.5.9.zip.sha256
   tasks:
     - name: Create destination directory
       file:
@@ -24,11 +23,6 @@
         url: "{{ download_url }}"
         dest: /tmp
         checksum: sha256:{{ checksum.content }}
-#    - name: Download binary archive and verify the checksum
-#      get_url:
-#        url: "{{ download_url }}"
-#        dest: /tmp
-#        checksum: sha256:https://www.apache.org/dist/groovy/2.5.9/distribution/apache-groovy-binary-2.5.9.zip.sha256
     - name: Unzip the archive
       unarchive:
         src: /tmp/{{ zipfile }}
@@ -44,10 +38,10 @@
         src: files/groovy-profile.sh
         dest: /etc/profile.d/groovy.sh
         mode: '0744'
-    - name: Allow Groovy scripts to be run as sudo
-      copy:
-        src: files/groovy-sudoers.sh
-        dest: /etc/sudoers.d/groovy
+#    - name: Allow Groovy scripts to be run as sudo
+#      copy:
+#        src: files/groovy-sudoers.sh
+#        dest: /etc/sudoers.d/groovy
     - name: Cleanup
       file:
         path: /tmp/{{ zipfile }}

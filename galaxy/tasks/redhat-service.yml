@@ -1,15 +1,15 @@
 ---
 - name: Copy init file to /etc/init.d
   copy:
-    src: "{{ galaxy_home }}/contrib/galaxy.fedora-init"
+    src: "{{ galaxy.home }}/contrib/galaxy.fedora-init"
     dest: /etc/init.d/galaxy
     mode: '0755'
     remote_src: yes
-- name: Change home to {{ galaxy_home }}
+- name: Change home to {{ galaxy.home }}
   lineinfile:
     path: /etc/init.d/galaxy
     regexp: '^RUN_IN='
-    line: 'RUN_IN="{{ galaxy_home }}"'
+    line: 'RUN_IN="{{ galaxy.home }}"'
 - name: Signal that the service has been configured
   set_fact:
     service_configured: yes

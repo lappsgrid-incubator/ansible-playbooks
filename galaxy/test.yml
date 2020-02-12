@@ -1,16 +1,14 @@
 ---
 - hosts: localhost
   vars:
-    galaxy_repo: galaxy repo
-    git:
-      galaxy:
-        repo: "{{ galaxy_repo }}"
-        home: "{{ galaxy_home }}"
-      mods:
-        repo: mods repo
-        home: /mods
+    galaxy_branch: lapps
+    mods_branch: master
+  vars_files:
+    - vars/defaults.yml
   tasks:
-    - name: print vars
+#    - include_tasks: tasks/parse-command-line.yml
+    - name: Print galaxy
       debug:
-        var: git.galaxy.repo
-
+        var: galaxy
+    - debug:
+        var: mods

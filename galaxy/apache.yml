@@ -1,12 +1,10 @@
 ---
 - hosts: galaxy
   become: yes
+  vars_files:
+    - vars/defaults.yml
+    - private/galaxy.yml
   vars:
-    # The location of the LAPPS Grid certificates and private key.  These must be loaded from a secure
-    # location on your local machine.
-    # DO NOT CHECK THE PRIVATE KEY INTO SOURCE CONTROL!
-    certificate_path: /Users/suderman/certs/2018
-    #ssl_path: /etc/ssl
     required_modules:
       - headers
       - rewrite

@@ -14,7 +14,7 @@
     CustomLog {{ log_dir }}/access.log combined
 
     AllowEncodedSlashes NoDecode
-    ProxyPass / http://127.0.0.1:8080/
+    ProxyPass / http://127.0.0.1:{{ galaxy.port }}/
 
     RewriteEngine on
     RewriteRule ^/static/style/(.*) /home/galaxy/galaxy/static/june_2007_style/blue/$1 [L]
@@ -27,6 +27,24 @@
     SSLCertificateFile	{{ certificate }}
     SSLCertificateKeyFile {{ key }}
     SSLCertificateChainFile {{ root_certificate }}
+
+    <Proxy http://loacalhost:{{ galaxy.port }}>
+	    Order deny,allow
+        Allow from all
+    </Proxy>
+    <Location "/">
+        AuthType Basic
+        AuthName Galaxy
+        AuthUserFile /etc/apache2/.htpasswd
+        Require valid-user
+        RequestHeader set X-URL-SCHEME https
+	    RewriteCond %{IS_SUBREQ} ^false$
+        RewriteCond %{LA-U:REMOTE_USER} (.+)
+	    RewriteRule . - [E=RU:%1]
+        RequestHeader set REMOTE_USER %{RU}e
+        RequestHeader set GX_SECRET {{ galaxy.remote_user }}
+    </Location>
+
     <FilesMatch "\.(cgi|shtml|phtml|php)$">
             SSLOptions +StdEnvVars
     </FilesMatch>

@@ -1,11 +1,11 @@
 ---
 - name: Copy init file to /etc/init.d
   copy:
-    src: "{{ galaxy_home }}/contrib/galaxy.debian-init"
+    src: "{{ galaxy.home }}/contrib/galaxy.debian-init"
     dest: /etc/init.d/galaxy
     mode: '0755'
     remote_src: yes
-- name: Change home to {{ galaxy_home }}
+- name: Change home to {{ galaxy.home }}
   replace:
     path: /etc/init.d/galaxy
     regexp: galaxy_dist

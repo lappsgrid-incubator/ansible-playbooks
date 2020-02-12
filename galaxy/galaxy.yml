@@ -1,7 +1,7 @@
 ---
-- name: Generate secrets
-  import_playbook: setup.yml
-  when: setup is defined and setup
+#- name: Generate secrets
+#  import_playbook: setup.yml
+#  when: setup is defined and setup
 
 - name: Install required packages
   import_playbook: packages.yml
