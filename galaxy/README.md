@@ -58,6 +58,14 @@ By default the `galaxy.yml` playbook will check out the *master* branch from the
 $> anisble-playbook galaxy.yml -e 'galaxy_branch=testing mods_branch=develop'
 ``` 
 
+## Jetstream Instances
+
+Two playbooks are provided for creating and destroying instances on Jetstream at IU.  The `jetstream.yml` playbook will provision instances on the IU cluster and the `jetstream-delete.yml` destroys them.  The information for each server (OS type, flavor (size), IP address, etc) is defined in the `vars/jetstream.yml` file.  You can edit the vars file to make changes or override the values on the command line:
+
+```
+$> ansible-playbook -e "flavor=m1.medium" jetstream.yml
+```
+
 ## Notes and Caveats
 
 Make sure you have sourced the correct openrc.sh file to be able to use the `jetstream.yml` and `jetstream-delete.yml` playbooks.
@@ -79,4 +87,11 @@ Ansible will try to auto-detect the Python version available on the target syste
 
 #### SSH
 
-The 
+The IP addresses used for the Galaxy instances have been recycled several times and you may already have an entry for them in your `~/.ssh/known_hosts` file from a previous usage.  If this is the case you will need to remove the old certificate and add the server's new certificate.
+
+``` 
+$> ssh-keygen -R $ip
+$> ssh-keyscan $ip >> ~/.ssh/known_hosts
+```
+
+You can also use the `ssh.reset.sh` Bash script for this.
