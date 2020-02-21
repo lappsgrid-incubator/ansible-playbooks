@@ -12,13 +12,13 @@
 
     ErrorLog {{ log_dir }}/error.log
     CustomLog {{ log_dir }}/access.log combined
-
+    UseCanonicalName On
     AllowEncodedSlashes NoDecode
     ProxyPass / http://127.0.0.1:{{ galaxy.port }}/
 
     RewriteEngine on
     RewriteRule ^/static/style/(.*) /home/galaxy/galaxy/static/june_2007_style/blue/$1 [L]
-    RewriteRule ^/static/scripts/(.*) /home/galaxy/galaxy/static/scripts/packed/$1 [L]
+#    RewriteRule ^/static/scripts/(.*) /home/galaxy/galaxy/static/scripts/packed/$1 [L]
     RewriteRule ^/static/(.*) /home/galaxy/galaxy/static/$1 [L]
     RewriteRule ^/favicon.ico /home/galaxy/galaxy/static/favicon.ico [L]
     RewriteRule ^/robots.txt /home/galaxy/galaxy/static/robots.txt [L]
@@ -32,6 +32,7 @@
 	    Order deny,allow
         Allow from all
     </Proxy>
+
     <Location "/">
         AuthType Basic
         AuthName Galaxy
@@ -52,7 +53,4 @@
             SSLOptions +StdEnvVars
     </Directory>
 
-#    <Location "/">
-#        RequestHeader set X-URL-SCHEME https
-#    </Location>
 </VirtualHost>

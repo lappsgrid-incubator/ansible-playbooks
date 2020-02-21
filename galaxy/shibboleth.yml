@@ -1,0 +1,54 @@
+---
+- hosts: shibboleth
+  vars:
+    http_port: 80
+    domain: sso.lappsgrid.org
+    hostname: "{{ domain }}"
+    entity_id: https://{{ domain }}/shibboleth
+    #sso_entity_id: https://shibboleth.brandeis.edu/idp/shibboleth
+    sso_entity_id: https://samltest.id/saml/idp
+  become: yes
+  tasks:
+    - name: Install Shibboleth repository
+      apt:
+        state: present
+        deb: https://pkg.switch.ch/switchaai/ubuntu/dists/bionic/main/binary-all/misc/switchaai-apt-source_1.0.0ubuntu1_all.deb
+    - name: Install Shibboleth
+      apt:
+        name: shibboleth
+        state: present
+        install_recommends: yes
+        autoremove: yes
+        update_cache: yes
+    - name: Copy our shibboleth2.xml
+      template:
+        src: templates/shibboleth2.xml.j2
+        dest: /etc/shibboleth/shibboleth2.xml
+    - name: Get the incommon signing key
+      get_url:
+        url: http://md.incommon.org/certs/inc-md-cert-mdq.pem
+        dest: /etc/shibboleth
+    - name: Generate keys and certificates
+      command: shib-keygen -f -u _shibd -h {{ hostname }} -e {{ entity_id }} -o /etc/shibboleth -n sp-{{ item }}
+      loop: [ encrypt, signing ]
+    - name: make sure shibd owns its directory
+      file:
+        path: /etc/shibboleth
+        owner: _shibd
+        group: _shibd
+        recurse: yes
+    - name: Enable the apache module
+      apache2_module:
+        name: shib
+        state: present
+      notify: Restart Apache
+    - name: restart and enable shibd
+      service:
+        name: shibd
+        state: restarted
+        enabled: yes
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted

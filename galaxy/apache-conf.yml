@@ -1,0 +1,36 @@
+---
+- hosts: galaxy
+  vars_files:
+    - vars/defaults.yml
+    - private/galaxy.yml
+  vars:
+    log_dir: /var/log/apache2
+    config_path: /etc/apache2/sites-available
+    ssl_path: /etc/apache2/ssl
+  tasks:
+    - name: Configure HTTP
+      template:
+        src: templates/virtualhost-80.conf.j2
+        dest: "{{ config_path }}/galaxy.conf"
+      notify: Restart Apache
+    - name: Configure HTTPS
+      vars:
+        key: "{{ ssl_path }}/private/lappsgrid.key"
+        certificate: "{{ ssl_path }}/certs/lappsgrid.crt"
+        root_certificate: "{{ ssl_path }}/certs/lappsgrid-root.crt"
+      template:
+        src: templates/virtualhost-443.conf.j2
+        dest: "{{ config_path }}/galaxy-ssl.conf"
+      notify: Restart Apache
+    - name: Enable both sites
+      command: a2ensite {{ item }}
+      loop:
+        - galaxy
+        - galaxy-ssl
+      notify: Restart Apache
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+

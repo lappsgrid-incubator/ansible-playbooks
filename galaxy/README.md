@@ -28,7 +28,7 @@ The `--roles-path` parameter causes the roles to be downloaded and saved into th
 
 Modify the included `hosts` file or edit your `/etc/ansible/hosts` file to include the IP address(es) of your Galaxy server(s). The `jetstream.yml` playbook configures the instances to use the `lappsgrid-shared-key.pem` for the `root` user. 
 
-If you use the `jetstream.yml` playbook to provision a Jetstream instance be use to change the IP addresses in `vars/jetstream.yml` as well 
+If you use the `jetstream.yml` playbook to provision a Jetstream instance be sure to change the IP addresses in `vars/jetstream.yml` as well 
 
 ## Playbooks
 
@@ -47,15 +47,23 @@ Configuring a Galaxy server involves a number of steps, each performed by a sepa
 There is an uber-playbook `galaxy.yml` that performs all of the above steps except the `jetstream.yml`.
 
 ``` 
-$> ansible-playbook galaxy.yml
+$> ansible-playbook -i hosts galaxy.yml
 ```
+***Pro-Tip*** If you get tired of typing `ansible-playbook -i hosts` and do not want to add the Galaxy host to your `/etc/ansible/hosts` file you can define an *alias* to decrease the typing required.
+
+``` 
+$> alias play="ansible-playbook -i hosts"
+$> play galaxy.yml
+```
+
+The `play` alias will be assumed from now on.
 
 #### Optional Parameters
 
 By default the `galaxy.yml` playbook will check out the *master* branch from the Mods repository and the *lapps* branch from the Galaxy repository.  These can be overridden by setting the `galaxy_branch` and `mods_branch` variables when calling the playbook:
 
 ``` 
-$> anisble-playbook galaxy.yml -e 'galaxy_branch=testing mods_branch=develop'
+$> play galaxy.yml -e 'galaxy_branch=testing mods_branch=develop'
 ``` 
 
 ## Jetstream Instances
@@ -63,14 +71,14 @@ $> anisble-playbook galaxy.yml -e 'galaxy_branch=testing mods_branch=develop'
 Two playbooks are provided for creating and destroying instances on Jetstream at IU.  The `jetstream.yml` playbook will provision instances on the IU cluster and the `jetstream-delete.yml` destroys them.  The information for each server (OS type, flavor (size), IP address, etc) is defined in the `vars/jetstream.yml` file.  You can edit the vars file to make changes or override the values on the command line:
 
 ```
-$> ansible-playbook -e "flavor=m1.medium" jetstream.yml
+$> play -e "flavor=m1.medium" jetstream.yml
 ```
 
 ## Notes and Caveats
 
 Make sure you have sourced the correct openrc.sh file to be able to use the `jetstream.yml` and `jetstream-delete.yml` playbooks.
 
-This playbook configures and enables `init.d` startup scripts for Galaxy, but the Galaxy service is not started by the playbook. The first time a Galaxy instance is started it uses `pip` to download the internet and then performs +170  transformations to update the database, which causes the ansible to timeout. Therefore the first Galaxy start up must be done manually.
+The `galaxy.yml` playbook configures and enables `init.d` startup scripts for Galaxy, but the Galaxy service is not started by the playbook. The first time a Galaxy instance is started it uses `pip` to download the internet and then performs +170  transformations to update the database, which causes the ansible to timeout. Therefore the first Galaxy start up must be done manually.
 
 ``` 
 $> cd /home/galaxy/galaxy
@@ -90,8 +98,9 @@ Ansible will try to auto-detect the Python version available on the target syste
 The IP addresses used for the Galaxy instances have been recycled several times and you may already have an entry for them in your `~/.ssh/known_hosts` file from a previous usage.  If this is the case you will need to remove the old certificate and add the server's new certificate.
 
 ``` 
+$> ip=`IP address of the Galaxy instance`
 $> ssh-keygen -R $ip
 $> ssh-keyscan $ip >> ~/.ssh/known_hosts
 ```
 
-You can also use the `ssh.reset.sh` Bash script for this.
+You can also use the `ssh-reset.sh` Bash script for this.

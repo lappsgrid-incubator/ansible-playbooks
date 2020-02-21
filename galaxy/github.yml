@@ -11,7 +11,6 @@
         createhome: yes
         state: present
         shell: /bin/bash
-
     - name: Clone the Galaxy repository
       git:
         repo: "{{ item.repo }}"
@@ -20,12 +19,6 @@
       loop:
         - "{{ galaxy }}"
         - "{{ mods }}"
-#        - home: "{{ galaxy_home }}"
-#          branch: "{{ galaxy_branch }}"
-#          repo: "{{ galaxy_repo }}"
-#        - home: "{{ mods_home }}"
-#          branch: "{{ mods_branch }}"
-#          repo: "{{ mods_repo }}"
     - name: Configure the galaxy.yml file
       template:
         src: templates/galaxy.ini.j2
@@ -39,3 +32,10 @@
       loop:
         - "{{ galaxy.home }}"
         - "{{ mods.home }}"
+    - name: Make sure gxformat2 is installed
+      pip:
+        name: gxformat2
+        state: present
+        virtualenv: "{{ galaxy.home }}/.venv"
+      become: yes
+      become_user: galaxy

@@ -23,3 +23,11 @@
 
 - name: Apache
   import_playbook: apache.yml
+
+- name: Shibboleth
+  import_playbook: shibboleth.yml
+
+- hosts: galaxy
+  tasks:
+    - name: Reboot. Both Galaxy and Apache should come online after the reboot.
+      reboot:

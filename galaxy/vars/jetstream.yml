@@ -4,15 +4,19 @@ security_group: galaxy
 
 ubuntu:
   name: galaxy-ubuntu
+  #image: 10b57886-fd36-4e29-b6ca-c21f5cdd196e
+  #image: 4a0021c3-5a89-4196-9877-425232ce634b
   #image: 590f7ed2-9bc6-4c74-b2e3-9a92b4a9e5ad
-  image: d8e3e123-f943-4a16-bdcd-f1aed8357f17
-  ip: 149.165.169.179
+  #image: b5be1ee5-ab26-4e85-a6af-f0325a124bb9
+  image: fdab8084-c23d-443e-b4c8-ae53a6571e73
+  ip: 149.165.156.140
 
 centos:
   name: galaxy-centos
-  image: 709f68b4-2e79-46db-ac8d-43b111d52ffb
-  ip: 149.165.156.140
+  #image: 709f68b4-2e79-46db-ac8d-43b111d52ffb
+  image: 0e45f427-38e9-4319-ae71-9aee5497295c
+  ip: 149.165.157.140
 
 servers:
   - "{{ ubuntu }}"
-  - "{{ centos }}"
+#  - "{{ centos }}"

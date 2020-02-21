@@ -1,15 +1,19 @@
 ---
 - hosts: localhost
+  vars_files:
+    - vars.yml
   tasks:
-  - name: Check
-    fail:
-      msg: "{{ item }} not defined"
-    when: "item is undefined"
-    loop: ['v1','v2','v3']
   - name: Test vars
+    vars:
+      options:
+        opt2: custom value
     debug:
-      msg: Loop {{ item }}
-    loop:
-      - "{{ v1 }}"
-      - "{{ v2 }}"
-      - "{{ v3 }}"
+      var: options
+#      msg: Option {{ item.n }} {{ item.value }}
+#    loop:
+#      - n: 1
+#        value: "{{ opt1 }}"
+#      - n: 2
+#        value: "{{ opt2 }}"
+#      - n: 3
+#        value: "{{ opt3 }}"

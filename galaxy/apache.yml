@@ -78,16 +78,21 @@
         name: mod_ssl
         state: present
       when: os_redhat
-    - name: Configure the virtual host
+    - name: Configure HTTPS
       vars:
         key: "{{ ssl_path }}/private/lappsgrid.key"
         certificate: "{{ ssl_path }}/certs/lappsgrid.crt"
         root_certificate: "{{ ssl_path }}/certs/lappsgrid-root.crt"
       template:
-        src: templates/virtualhost.conf.j2
+        src: templates/virtualhost-443.conf.j2
+        dest: "{{ config_path }}/galaxy-ssl.conf"
+    - name: Configure HTTP
+      template:
+        src: templates/virtualhost-80.conf.j2
         dest: "{{ config_path }}/galaxy.conf"
-    - name: Enable the galaxy virtual host
-      command: a2ensite galaxy
+    - name: Enable both sites
+      command: a2ensite {{ item }}
+      loop: [ galaxy, galaxy-ssl ]
       args:
         creates: /etc/apache2/sites-enabled/galaxy
       when: os_debian

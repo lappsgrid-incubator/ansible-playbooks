@@ -18,12 +18,18 @@
         src: /tmp/{{tarball }}
         dest: "{{ dest }}"
         remote_src: yes
+        owner: root
     - name: Create a link in /usr/local/bin
       file:
         src: "{{ dest }}/lsd"
         dest: /usr/local/bin/lsd
         state: link
         mode: u+x
+    - name: Ensure permissions on script
+      file:
+        path: "{{ dest }}/lsd"
+        owner: root
+        mode: '0755'
     - name: Cleanup
       file:
         path: /tmp/{{ tarball }}

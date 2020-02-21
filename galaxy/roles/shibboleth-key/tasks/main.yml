@@ -1,0 +1,20 @@
+---
+- name: generate {{ type }} key and certificate
+  command: shib-keygen -f -u _shibd -h {{ hostname }} -e {{ entity_id }} -o /etc/shibboleth -n sp-{{ type }}
+#- name: copy {{ type }} key
+#  copy:
+#    src: /tmp/sp-{{ item }}.pem
+#    dest: /etc/shibboleth/sp-{{ type }}-{{ item }}.pem
+#    owner: _shibd
+#    group: _shibd
+#    remote_src: yes
+#  loop:
+#    - key
+#    - cert
+#- name: cleanup
+#  file:
+#    path: /tmp/sp-{{ item }}.pem
+#    state: absent
+#  loop:
+#    - key
+#    - cert

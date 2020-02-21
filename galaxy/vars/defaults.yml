@@ -1,4 +1,7 @@
 ---
+galaxy_branch: authentication
+mods_branch: authentication
+
 galaxy:
   port: 8000
   user: galaxy
@@ -12,6 +15,13 @@ mods:
   home: /home/galaxy/mods
   repo: https://github.com/lappsgrid-incubator/GalaxyMods.git
 
+project:
+  port: 8000
+  user: galaxy
+  root: /home/galaxy
+  branch: release_19.09
+  home: /home/galaxy/galaxy
+  repo: https://github.com/galaxyproject/galaxy.git
 
 # The location of the LAPPS Grid certificates and private key.  These must be loaded from a secure
 # location on your local machine.

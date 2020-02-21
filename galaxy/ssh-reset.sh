@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 
-for ip in 149.165.169.179 149.165.156.140 ; do
+if [[ "$#" = 0 ]] ; then
+    IPS=149.165.156.140
+else
+    IPS=$@
+fi
+
+for ip in $IPS ; do
+	echo $ip
 	ssh-keygen -R $ip
 	ssh-keyscan $ip >> ~/.ssh/known_hosts
 done

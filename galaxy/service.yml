@@ -15,13 +15,6 @@
         path: /etc/init.d/galaxy
         regexp: galaxy.ini
         replace: galaxy.yml
-    - name: Make sure gxformat2 is installed
-      pip:
-        name: gxformat2
-        state: present
-        virtualenv: "{{ galaxy.home }}/.venv"
-      become: yes
-      become_user: galaxy
     - name: Enable the galaxy service
       service:
         name: galaxy

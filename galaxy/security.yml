@@ -1,10 +1,15 @@
 ---
+
 - hosts: localhost
   vars:
-    ip: 96.248.38.219
+    ip: 96.248.38.219/32
   vars_files:
     - vars/jetstream.yml
   tasks:
+    - name: Create a security group
+      os_security_group:
+        name: "{{ security_group }}"
+        state: present
     - name: SSH, HTTP, and HTTPS
       os_security_group_rule:
         security_group: "{{ security_group }}"
