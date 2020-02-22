@@ -1,5 +1,5 @@
 network: 588397c7-8d91-4db4-b3ea-9d293209221f
-flavor: m1.small
+flavor: m1.medium
 security_group: galaxy
 
 ubuntu:
@@ -19,4 +19,4 @@ centos:
 
 servers:
   - "{{ ubuntu }}"
-#  - "{{ centos }}"
+  - "{{ centos }}"

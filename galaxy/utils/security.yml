@@ -4,7 +4,7 @@
   vars:
     ip: 96.248.38.219/32
   vars_files:
-    - vars/jetstream.yml
+    - ../vars/jetstream.yml
   tasks:
     - name: Create a security group
       os_security_group:

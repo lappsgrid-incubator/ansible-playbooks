@@ -1,7 +1,0 @@
----
-- name: Setup Debian|Ubuntu
-  include-tasks: debian.yml
-  when: ansisible_os_family == 'Debian'
-- name: Setup RedHat|CentOS
-  include-tasks: redhat.yml
-  when: ansible_os_family == 'RedHat'
