@@ -7,8 +7,16 @@
     - vars/defaults.yml
   tasks:
 #    - include_tasks: tasks/parse-command-line.yml
-    - name: Print galaxy
-      debug:
-        var: galaxy
+    - name: Facts
+      set_fact:
+        "{{item.fact}}" : "{{item.value}}"
+      loop:
+        - fact: enabled
+          value: yes
+        - fact: greeting
+          value: Hello world
     - debug:
-        var: mods
+        var: enabled
+    - debug:
+        var: greeting
+      when: "{{enabled}}"

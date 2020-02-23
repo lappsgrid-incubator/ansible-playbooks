@@ -1,0 +1,60 @@
+<VirtualHost *:{{ port }}>
+    ServerName {{ server_name }}
+    ServerAdmin {{ server_admin }}
+
+    DocumentRoot {{ doc_root }}
+
+    # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+    # error, crit, alert, emerg.
+    # It is also possible to configure the loglevel for particular
+    # modules, e.g.
+    #LogLevel info ssl:warn
+
+    ErrorLog {{ log_dir }}/error.log
+    CustomLog {{ log_dir }}/access.log combined
+    UseCanonicalName On
+    AllowEncodedSlashes NoDecode
+    ProxyPass / http://127.0.0.1:{{ galaxy.port }}/
+
+    RewriteEngine on
+    RewriteRule ^/static/style/(.*) /home/galaxy/galaxy/static/june_2007_style/blue/$1 [L]
+#    RewriteRule ^/static/scripts/(.*) /home/galaxy/galaxy/static/scripts/packed/$1 [L]
+    RewriteRule ^/static/(.*) /home/galaxy/galaxy/static/$1 [L]
+    RewriteRule ^/favicon.ico /home/galaxy/galaxy/static/favicon.ico [L]
+    RewriteRule ^/robots.txt /home/galaxy/galaxy/static/robots.txt [L]
+
+    <Proxy http://localhost:{{ galaxy.port }}>
+	    Order deny,allow
+        Allow from all
+    </Proxy>
+
+    {% if auth == 'basic' -%}
+    <Location "/">
+        AuthType Basic
+        AuthName Galaxy
+        AuthUserFile /etc/apache2/.htpasswd
+        Require valid-user
+        RequestHeader set X-URL-SCHEME https
+	    RewriteCond %{IS_SUBREQ} ^false$
+        RewriteCond %{LA-U:REMOTE_USER} (.+)
+	    RewriteRule . - [E=RU:%1]
+        RequestHeader set REMOTE_USER %{RU}e
+        RequestHeader set GX_SECRET {{ galaxy.remote_user }}
+    </Location>
+    {% endif %}
+
+    {% if port == 443 -%}
+    SSLEngine on
+    SSLCertificateFile	{{ certificate }}
+    SSLCertificateKeyFile {{ key }}
+    SSLCertificateChainFile {{ root_certificate }}
+
+    <FilesMatch "\.(cgi|shtml|phtml|php)$">
+            SSLOptions +StdEnvVars
+    </FilesMatch>
+    <Directory /usr/lib/cgi-bin>
+            SSLOptions +StdEnvVars
+    </Directory>
+    {% endif %}
+
+</VirtualHost>

@@ -1,36 +1,44 @@
 ---
 - hosts: galaxy
   vars_files:
-    - vars/defaults.yml
-    - private/galaxy.yml
+    - ../vars/defaults.yml
+    - ../private/galaxy.yml
   vars:
+    server_name: galaxy.lappsgrid.org
+    server_admin: webmaster@lappsgrid.org
+    doc_root: /var/www/galaxy
     log_dir: /var/log/apache2
-    config_path: /etc/apache2/sites-available
     ssl_path: /etc/apache2/ssl
   tasks:
     - name: Configure HTTP
+      vars:
+        port: 80
+        auth: basic
       template:
-        src: templates/virtualhost-80.conf.j2
+        src: ../templates/virtualhost.conf.j2
         dest: "{{ config_path }}/galaxy.conf"
-      notify: Restart Apache
+#        dest: /tmp/galaxy.conf
+      #notify: Restart Apache
     - name: Configure HTTPS
       vars:
+        port: 443
+        auth: basic
         key: "{{ ssl_path }}/private/lappsgrid.key"
         certificate: "{{ ssl_path }}/certs/lappsgrid.crt"
         root_certificate: "{{ ssl_path }}/certs/lappsgrid-root.crt"
       template:
-        src: templates/virtualhost-443.conf.j2
+        src: ../templates/virtualhost.conf.j2
         dest: "{{ config_path }}/galaxy-ssl.conf"
-      notify: Restart Apache
-    - name: Enable both sites
-      command: a2ensite {{ item }}
-      loop:
-        - galaxy
-        - galaxy-ssl
-      notify: Restart Apache
-  handlers:
-    - name: Restart Apache
-      service:
-        name: apache2
-        state: restarted
+      #notify: Restart Apache
+#    - name: Enable both sites
+#      command: a2ensite {{ item }}
+#      loop:
+#        - galaxy
+#        - galaxy-ssl
+#      notify: Restart Apache
+#  handlers:
+#    - name: Restart Apache
+#      service:
+#        name: apache2
+#        state: restarted
 
