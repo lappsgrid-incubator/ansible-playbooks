@@ -5,6 +5,9 @@
     - vars/defaults.yml
     - private/galaxy.yml
   vars:
+    templates:
+      http: templates/virtualhost-80.conf.j2
+      https: templates/virtualhost-noauth-443.conf.j2
     required_modules:
       - headers
       - rewrite
@@ -84,11 +87,11 @@
         certificate: "{{ ssl_path }}/certs/lappsgrid.crt"
         root_certificate: "{{ ssl_path }}/certs/lappsgrid-root.crt"
       template:
-        src: templates/virtualhost-443.conf.j2
+        src: "{{ templates.https }}"
         dest: "{{ config_path }}/galaxy-ssl.conf"
     - name: Configure HTTP
       template:
-        src: templates/virtualhost-80.conf.j2
+        src: "{{ templates.http }}"
         dest: "{{ config_path }}/galaxy.conf"
     - name: Enable both sites
       command: a2ensite {{ item }}

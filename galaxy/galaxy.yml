@@ -24,8 +24,8 @@
 - name: Apache
   import_playbook: apache.yml
 
-- name: Shibboleth
-  import_playbook: shibboleth.yml
+#- name: Shibboleth
+#  import_playbook: shibboleth.yml
 
 - hosts: galaxy
   tasks:
