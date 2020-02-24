@@ -32,7 +32,7 @@
     <Location "/">
         AuthType Basic
         AuthName Galaxy
-        AuthUserFile /etc/apache2/.htpasswd
+        AuthUserFile {{ password_file }}
         Require valid-user
         RequestHeader set X-URL-SCHEME https
 	    RewriteCond %{IS_SUBREQ} ^false$
@@ -45,9 +45,9 @@
 
     {% if port == 443 -%}
     SSLEngine on
-    SSLCertificateFile	{{ certificate }}
-    SSLCertificateKeyFile {{ key }}
-    SSLCertificateChainFile {{ root_certificate }}
+    SSLCertificateFile	{{ ssl_path }}/certs/lappsgrid.crt
+    SSLCertificateKeyFile {{ ssl_path }}/private/lappsgrid.key
+    SSLCertificateChainFile {{ ssl_path }}/certs/lappsgrid-root.crt
 
     <FilesMatch "\.(cgi|shtml|phtml|php)$">
             SSLOptions +StdEnvVars

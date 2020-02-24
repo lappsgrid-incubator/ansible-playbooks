@@ -5,37 +5,14 @@
     - vars/defaults.yml
     - private/galaxy.yml
   vars:
-    server_name: galaxy.lappsgrid.org
-    server_admin: webmaster@lappsgrid.org
-    auth: basic
-    doc_root: /var/www/galaxy
-    log_dir: /var/log/apache2
-    config_path: /etc/apache2/sites-available
-    ssl_path: /etc/apache2/ssl
     required_modules:
       - headers
       - rewrite
       - proxy
       - proxy_http
   tasks:
-    - name: System configuration (Debian|Ubuntu)
-      set_fact:
-        os_debian: yes
-        os_redhat: no
-        package_name: apache2
-        config_path: /etc/apache2/sites-available
-        ssl_path: /etc/apache2/ssl
-        log_dir: /var/log/apache2
-      when: ansible_os_family == 'Debian'
-    - name: System configuration (RedHat|CentOS)
-      set_fact:
-        os_debian: no
-        os_redhat: yes
-        package_name: httpd
-        config_path: /etc/httpd/conf.d
-        ssl_path: /etc/httpd/ssl
-        log_dir: /var/log/httpd
-      when: ansible_os_family == 'RedHat'
+    - name: System configuration
+      include_tasks: tasks/apache-init.yml
     - name: Install {{ package_name }}
       package:
         name: "{{ package_name }}"
@@ -48,7 +25,7 @@
       loop:
         - "{{ ssl_path }}/certs"
         - "{{ ssl_path }}/private"
-        - /var/www/galaxy
+        - "{{ doc_root }}"
     - name: Upload the lappsgrid key and certificate
       copy:
         src: "{{ certificate_path }}/{{ item.file }}"
@@ -75,12 +52,12 @@
         name: "{{ item }}"
         state: present
       loop: "{{ required_modules }}"
-    - name: Install mod_ssl (Debian|Ubuntu)
+    - name: Enable SSL (Debian|Ubuntu)
       apache2_module:
         name: ssl
         state: present
       when: os_debian
-    - name: Install mod_ssl (RedHat|CentOS)
+    - name: Enable SSL (RedHat|CentOS)
       package:
         name: mod_ssl
         state: present
@@ -88,9 +65,6 @@
     - name: Configure HTTPS
       vars:
         port: 443
-        key: "{{ ssl_path }}/private/lappsgrid.key"
-        certificate: "{{ ssl_path }}/certs/lappsgrid.crt"
-        root_certificate: "{{ ssl_path }}/certs/lappsgrid-root.crt"
       template:
         src: "templates/virtualhost.conf.j2"
         dest: "{{ config_path }}/galaxy-ssl.conf"
@@ -100,12 +74,17 @@
       template:
         src: templates/virtualhost.conf.j2
         dest: "{{ config_path }}/galaxy.conf"
-    - name: Enable both sites
+    - name: Enable both sites (Debian|Ubunut)
       command: a2ensite {{ item }}
       loop: [ galaxy, galaxy-ssl ]
       args:
         creates: /etc/apache2/sites-enabled/galaxy
-      when: os_debian
+      when: ansible_os_family == 'Debian'
+    - name: Set a secret password during testing
+      htpasswd:
+        path: "{{ password_file }}"
+        name: suderman@cs.vassar.edu
+        password: password
     - name: Restart apache and ensure it is enabled on reboot
       service:
         name: "{{ package_name }}"

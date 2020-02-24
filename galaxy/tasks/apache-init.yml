@@ -1,0 +1,10 @@
+---
+# Defines all the variables used when setting up Apache.
+- name: Include default variables
+  include_vars: vars/apache.yml
+- name: Include OS specific settings (RedHat|CentOS)
+  include_vars: vars/apache-centos.yml
+  when: ansible_os_family == 'RedHat'
+- name: Include OS specfic settigns (Debian|Ubuntu)
+  include_vars: vars/apache-ubuntu.yml
+  when: ansible_os_family == 'Debian'

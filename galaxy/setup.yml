@@ -17,7 +17,7 @@
         url: https://api.lappsgrid.org/password?length=24&type=hex
         return_content: yes
       register: id_secret
-    - name: Generate secret for remote users
+    - name: Generate secret for Galaxy remote users
       uri:
         url: https://api.lappsgrid.org/password?length=32&type=hex
         return_content: yes

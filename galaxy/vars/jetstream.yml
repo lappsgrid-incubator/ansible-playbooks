@@ -19,4 +19,4 @@ centos:
 
 servers:
   - "{{ ubuntu }}"
-#  - "{{ centos }}"
+  - "{{ centos }}"

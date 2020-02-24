@@ -21,8 +21,8 @@
         - "{{ mods }}"
     - name: Configure the galaxy.yml file
       template:
-        src: templates/galaxy.ini.j2
-        dest: "{{ galaxy.home }}/config/galaxy.ini"
+        src: templates/galaxy-config.yml.j2
+        dest: "{{ galaxy.home }}/config/galaxy.yml"
     - name: Make sure the Galaxy user owns its directories
       file:
         path: "{{ item }}"
