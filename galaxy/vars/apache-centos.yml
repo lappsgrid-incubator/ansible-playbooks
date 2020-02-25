@@ -1,9 +1,0 @@
----
-# Names and locations used on RedHat (CentOS)
-package_name: httpd
-config_path: /etc/httpd/conf.d
-ssl_path: /etc/httpd/ssl
-log_dir: /var/log/httpd
-password_file: /etc/httpd/.htpasswd
-os_redhat: yes
-os_debian: no

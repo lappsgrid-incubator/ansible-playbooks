@@ -1,22 +1,12 @@
 ---
-- hosts: localhost
-  vars:
-    galaxy_branch: lapps
-    mods_branch: master
+- hosts: galaxy
   vars_files:
     - vars/defaults.yml
   tasks:
-#    - include_tasks: tasks/parse-command-line.yml
-    - name: Facts
-      set_fact:
-        "{{item.fact}}" : "{{item.value}}"
+    - name: System configuration.
+      include_tasks: tasks/apache-init.yml
+    - debug:
+        var: "{{ item }}"
       loop:
-        - fact: enabled
-          value: yes
-        - fact: greeting
-          value: Hello world
-    - debug:
-        var: enabled
-    - debug:
-        var: greeting
-      when: "{{enabled}}"
+        - ssl_path
+        - password_file

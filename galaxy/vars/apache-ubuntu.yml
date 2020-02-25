@@ -1,9 +1,0 @@
----
-# Names and locations used on Debian (Ubuntu)
-package_name: apache2
-log_dir: /var/log/apache2
-config_path: /etc/apache2/sites-available
-ssl_path: /etc/apache2/ssl
-password_file: /etc/apache2/.htpasswd
-os_redhat: no
-os_debian: yes

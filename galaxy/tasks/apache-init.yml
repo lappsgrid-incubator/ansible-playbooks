@@ -3,8 +3,21 @@
 - name: Include default variables
   include_vars: vars/apache.yml
 - name: Include OS specific settings (RedHat|CentOS)
-  include_vars: vars/apache-centos.yml
+  set_fact:
+    package_name: httpd
+    config_path: /etc/httpd/conf.d
+    os_redhat: yes
+    os_debian: no
   when: ansible_os_family == 'RedHat'
 - name: Include OS specfic settigns (Debian|Ubuntu)
-  include_vars: vars/apache-ubuntu.yml
+  set_fact:
+    package_name: apache2
+    config_path: /etc/apache2/sites-available
+    os_redhat: no
+    os_debian: yes
   when: ansible_os_family == 'Debian'
+- name: Set facts derived from package name
+  set_fact:
+    ssl_path: /etc/{{ package_name }}/ssl
+    log_dir: /var/log/{{ package_name }}
+    password_file: /etc/{{ package_name }}/.htpasswd

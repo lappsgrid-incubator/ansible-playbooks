@@ -18,7 +18,7 @@
         url: "{{ checksum_url }}"
         return_content: yes
       register: checksum
-    - name: Download the file from {{ download_url }}
+    - name: Download Groovy from {{ download_url }}
       get_url:
         url: "{{ download_url }}"
         dest: /tmp

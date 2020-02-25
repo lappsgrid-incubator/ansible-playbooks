@@ -1,4 +1,5 @@
 ---
+# Steps needed to customized a default Galaxy installation for the LAPPS Grid.
 - name: Link the LAPPS Python lib
   file:
     src: "{{ mods.home }}/lib/lappsgrid"

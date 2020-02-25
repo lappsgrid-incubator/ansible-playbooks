@@ -80,6 +80,10 @@
       args:
         creates: /etc/apache2/sites-enabled/galaxy
       when: ansible_os_family == 'Debian'
+    - name: Passlib is not installed on Ubuntu
+      pip:
+        name: passlib
+        state: present
     - name: Set a secret password during testing
       htpasswd:
         path: "{{ password_file }}"
