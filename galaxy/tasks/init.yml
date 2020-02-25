@@ -1,0 +1,11 @@
+---
+- name: Debian|Ubuntu
+  include_vars: vars/debian.yml
+  when: ansible_os_family == 'Debian'
+- name: RedHat|CentOS
+  include_vars: vars/redhat.yml
+  when: ansible_os_family == 'RedHat'
+- name: Apache
+  include_vars: vars/apache.yml
+- name: Common
+  include_vars: vars/common.yml

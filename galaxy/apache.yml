@@ -62,6 +62,11 @@
         name: mod_ssl
         state: present
       when: os_redhat
+    - name: Enable Shibboleth
+      apache2_module:
+        name: shib
+        state: present
+      when: auth == 'shibboleth'
     - name: Configure HTTPS
       vars:
         port: 443

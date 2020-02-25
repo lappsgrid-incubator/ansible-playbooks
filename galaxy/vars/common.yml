@@ -1,0 +1,4 @@
+---
+ssl_path: /etc/{{ apache }}/ssl
+log_dir: /var/log/{{ apache }}
+password_file: /etc/{{ apache }}/.htpasswd

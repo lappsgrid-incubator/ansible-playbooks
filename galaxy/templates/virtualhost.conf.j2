@@ -1,3 +1,6 @@
+{% if port == 443 %}
+SSLStaplingCache shmcb:/var/run/ocsp(128000)
+{% endif %}
 <VirtualHost *:{{ port }}>
     ServerName {{ server_name }}
     ServerAdmin {{ server_admin }}
@@ -41,13 +44,38 @@
         RequestHeader set REMOTE_USER %{RU}e
         RequestHeader set GX_SECRET {{ galaxy.remote_user }}
     </Location>
+    {% elif auth == 'shibboleth' -%}
+    <Location "/Shibboleth.sso">
+        SetHandler shib
+    </Location>
+    <Location "/">
+        AuthType shibboleth
+        ShibRequestSetting requireSession 1
+        Require valid-user
+        # Require shib-session
+        RequestHeader set X-URL-SCHEME https
+	    RewriteCond %{IS_SUBREQ} ^false$
+        RewriteCond %{LA-U:REMOTE_USER} (.+)
+	    RewriteRule . - [E=RU:%1]
+        RequestHeader set REMOTE_USER %{RU}e
+        RequestHeader set GX_SECRET {{ galaxy.remote_user }}
+    </Location>
     {% endif %}
 
     {% if port == 443 -%}
     SSLEngine on
+    SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+    SSLCipherSuite "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+    SSLHonorCipherOrder on
+    SSLCompression Off
+    SSLUseStapling On
+    SSLStaplingResponderTimeout 5
+    SSLStaplingReturnResponderErrors off
+
     SSLCertificateFile	{{ ssl_path }}/certs/lappsgrid.crt
     SSLCertificateKeyFile {{ ssl_path }}/private/lappsgrid.key
     SSLCertificateChainFile {{ ssl_path }}/certs/lappsgrid-root.crt
+#    Header always set Strict-Transport-Security "max-age=63072000;includeSubDomains;preload"
 
     <FilesMatch "\.(cgi|shtml|phtml|php)$">
             SSLOptions +StdEnvVars

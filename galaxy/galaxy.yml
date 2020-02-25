@@ -21,11 +21,12 @@
 - name: Galaxy init.d service
   import_playbook: service.yml
 
+- name: Shibboleth
+  import_playbook: shibboleth.yml
+  when: auth == "shibboleth"
+
 - name: Apache
   import_playbook: apache.yml
-
-#- name: Shibboleth
-#  import_playbook: shibboleth.yml
 
 - hosts: galaxy
   tasks:
