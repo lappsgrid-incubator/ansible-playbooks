@@ -1,0 +1,6 @@
+---
+# Apache configurations that are the same across operating systems
+server_name: galaxy.lappsgrid.org
+server_admin: webmaster@lappsgrid.org
+auth: basic
+doc_root: /var/www/galaxy

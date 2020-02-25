@@ -1,0 +1,12 @@
+---
+- hosts: galaxy
+  vars_files:
+    - vars/defaults.yml
+  tasks:
+    - name: System configuration.
+      include_tasks: tasks/apache-init.yml
+    - debug:
+        var: "{{ item }}"
+      loop:
+        - ssl_path
+        - password_file

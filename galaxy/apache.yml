@@ -1,0 +1,96 @@
+---
+- hosts: galaxy
+  become: yes
+  vars_files:
+    - vars/defaults.yml
+    - private/galaxy.yml
+  vars:
+    required_modules:
+      - headers
+      - rewrite
+      - proxy
+      - proxy_http
+  tasks:
+    - name: System configuration
+      include_tasks: tasks/apache-init.yml
+    - name: Install {{ package_name }}
+      package:
+        name: "{{ package_name }}"
+        state: present
+    - name: Make directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        recurse: yes
+      loop:
+        - "{{ ssl_path }}/certs"
+        - "{{ ssl_path }}/private"
+        - "{{ doc_root }}"
+    - name: Upload the lappsgrid key and certificate
+      copy:
+        src: "{{ certificate_path }}/{{ item.file }}"
+        dest: "{{ ssl_path }}/{{ item.dir }}/{{ item.file }}"
+      loop:
+        - file: lappsgrid.key
+          dir: private
+        - file: lappsgrid.crt
+          dir: certs
+        - file: lappsgrid-root.crt
+          dir: certs
+    - name: Make sure permissions are correct for the key and certificates
+      file:
+        path: "{{ item.file }}"
+        mode: "{{ item.mode }}"
+        recurse: yes
+      loop:
+        - file: "{{ ssl_path }}/certs"
+          mode: '644'
+        - file: "{{ ssl_path }}/private"
+          mode: '600'
+    - name: Enable required apache modules
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ required_modules }}"
+    - name: Enable SSL (Debian|Ubuntu)
+      apache2_module:
+        name: ssl
+        state: present
+      when: os_debian
+    - name: Enable SSL (RedHat|CentOS)
+      package:
+        name: mod_ssl
+        state: present
+      when: os_redhat
+    - name: Configure HTTPS
+      vars:
+        port: 443
+      template:
+        src: "templates/virtualhost.conf.j2"
+        dest: "{{ config_path }}/galaxy-ssl.conf"
+    - name: Configure HTTP
+      vars:
+        port: 80
+      template:
+        src: templates/virtualhost.conf.j2
+        dest: "{{ config_path }}/galaxy.conf"
+    - name: Enable both sites (Debian|Ubunut)
+      command: a2ensite {{ item }}
+      loop: [ galaxy, galaxy-ssl ]
+      args:
+        creates: /etc/apache2/sites-enabled/galaxy
+      when: ansible_os_family == 'Debian'
+    - name: Passlib is not installed on Ubuntu
+      pip:
+        name: passlib
+        state: present
+    - name: Set a secret password during testing
+      htpasswd:
+        path: "{{ password_file }}"
+        name: suderman@cs.vassar.edu
+        password: password
+    - name: Restart apache and ensure it is enabled on reboot
+      service:
+        name: "{{ package_name }}"
+        state: restarted
+        enabled: yes

@@ -1,0 +1,22 @@
+---
+- hosts: galaxy
+  vars_files:
+    - vars/defaults.yml
+  tasks:
+    - include_tasks: tasks/debian-service.yml
+      when: ansible_os_family == 'Debian'
+    - include_tasks: tasks/redhat-service.yml
+      when: ansible_os_family == 'RedHat'
+    - fail:
+        msg: No service has been configured for {{ ansible_os_family }}
+      when: service_configured is undefined or not service_configured
+    - name: replace galaxy.ini with galaxy.yml
+      replace:
+        path: /etc/init.d/galaxy
+        regexp: galaxy.ini
+        replace: galaxy.yml
+    - name: Enable the galaxy service
+      service:
+        name: galaxy
+        #state: started
+        enabled: yes

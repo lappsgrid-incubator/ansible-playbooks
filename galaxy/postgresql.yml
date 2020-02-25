@@ -1,0 +1,19 @@
+---
+- hosts: galaxy
+  vars_files:
+    - private/postgresql.yml
+  pre_tasks:
+    - include_tasks: tasks/redhat-postgresql.yml
+      when: ansible_os_family == 'RedHat'
+  roles:
+    - role: geerlingguy.postgresql
+      become: yes
+
+- hosts: galaxy
+  vars_files:
+    - private/galaxy.yml
+  tasks:
+    - name: Save the database password for future use.
+      copy:
+        dest: /root/galaxy-database.txt
+        content: "{{ db.username}}:{{ db.password }}"

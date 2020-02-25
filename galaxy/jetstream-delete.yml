@@ -1,0 +1,12 @@
+
+- hosts: localhost
+  vars_files:
+    vars/jetstream.yml
+  tasks:
+    - name: Delete Jetstream instance(s)
+      os_server:
+        state: absent
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+      loop: "{{ servers }}"
+

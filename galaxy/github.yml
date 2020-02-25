@@ -1,0 +1,41 @@
+---
+- hosts: galaxy
+  vars_files:
+    - vars/defaults.yml
+    - private/galaxy.yml
+  tasks:
+    - name: Create the galaxy user account
+      user:
+        name: galaxy
+        system: yes
+        createhome: yes
+        state: present
+        shell: /bin/bash
+    - name: Clone the Galaxy repository
+      git:
+        repo: "{{ item.repo }}"
+        dest: "{{ item.home }}"
+        version: "{{ item.branch }}"
+      loop:
+        - "{{ galaxy }}"
+        - "{{ mods }}"
+    - name: Configure the galaxy.yml file
+      template:
+        src: templates/galaxy-config.yml.j2
+        dest: "{{ galaxy.home }}/config/galaxy.yml"
+    - name: Make sure the Galaxy user owns its directories
+      file:
+        path: "{{ item }}"
+        owner: "{{ galaxy.user }}"
+        group: "{{ galaxy.user }}"
+        recurse: yes
+      loop:
+        - "{{ galaxy.home }}"
+        - "{{ mods.home }}"
+    - name: Make sure gxformat2 is installed
+      pip:
+        name: gxformat2
+        state: present
+        virtualenv: "{{ galaxy.home }}/.venv"
+      become: yes
+      become_user: galaxy

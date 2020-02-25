@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+  vars_files:
+    - vars/defaults.yml
+  tasks:
+    - name: Ensure the vars directory exists.
+      file:
+        path: ./private
+        state: directory
+    - name: Generate a random password for the database.
+      uri:
+        url: https://api.lappsgrid.org/password?length=16&type=safe
+        return_content: yes
+      register: db_password
+    - name: Generate Galaxy secret
+      uri:
+        url: https://api.lappsgrid.org/password?length=24&type=hex
+        return_content: yes
+      register: id_secret
+    - name: Generate secret for Galaxy remote users
+      uri:
+        url: https://api.lappsgrid.org/password?length=32&type=hex
+        return_content: yes
+      register: remote_user_secret
+    - name: Generate variables files for Galaxy setup
+      template:
+        src: templates/galaxy-vars.yml.j2
+        dest: private/galaxy.yml
+    - name: Generate variables file for geerlingguy.postgresql role
+      template:
+        src: templates/postgresql.yml.j2
+        dest: private/postgresql.yml
+
+

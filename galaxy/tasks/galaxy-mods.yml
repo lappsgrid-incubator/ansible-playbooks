@@ -1,0 +1,16 @@
+---
+# Steps needed to customized a default Galaxy installation for the LAPPS Grid.
+- name: Link the LAPPS Python lib
+  file:
+    src: "{{ mods.home }}/lib/lappsgrid"
+    dest: "{{ galaxy.home }}/lib/lappsgrid"
+    state: link
+    owner: "{{ galaxy.user }}"
+    group: "{{ galaxy.user }}"
+- name: Modify the masthead to read "LAPPS / Galaxy"
+  lineinfile:
+    path: "{{ galaxy.home }}/client/galaxy/scripts/layout/masthead.js"
+    regexp: '^this.$navbarBrandTitle'
+    line: this.$navbarBrandTitle.html(`${(this.options.brand && `${this.options.brand} /`) || ""} Galaxy`);
+    #line: this.$navbarBrandTitle.html("LAPPS / Galaxy");
+

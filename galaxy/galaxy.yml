@@ -1,0 +1,33 @@
+---
+#- name: Generate secrets
+#  import_playbook: setup.yml
+#  when: setup is defined and setup
+
+- name: Install required packages
+  import_playbook: packages.yml
+
+- name: Postgresql
+  import_playbook: postgresql.yml
+
+- name: Groovy
+  import_playbook: groovy.yml
+
+- name: LAPPS Services DSL
+  import_playbook: lsd.yml
+
+- name: Galaxy
+  import_playbook: github.yml
+
+- name: Galaxy init.d service
+  import_playbook: service.yml
+
+- name: Apache
+  import_playbook: apache.yml
+
+#- name: Shibboleth
+#  import_playbook: shibboleth.yml
+
+- hosts: galaxy
+  tasks:
+    - name: Reboot. Both Galaxy and Apache should come online after the reboot.
+      reboot:
