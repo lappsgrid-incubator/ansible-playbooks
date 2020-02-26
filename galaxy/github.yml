@@ -1,7 +1,7 @@
 ---
 - hosts: galaxy
   vars_files:
-    - vars/defaults.yml
+    - vars/galaxy.yml
     - private/galaxy.yml
   tasks:
     - name: Create the galaxy user account

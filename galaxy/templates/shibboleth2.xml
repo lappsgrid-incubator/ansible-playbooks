@@ -81,15 +81,9 @@
 
         <!-- Example of remotely supplied "on-demand" signed metadata. -->
         <!--
-        <MetadataProvider type="MDQ" validate="true" cacheDirectory="mdq"
-	            baseUrl="http://mdq.federation.org" ignoreTransport="true">
-            <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
-            <MetadataFilter type="Signature" certificate="mdqsigner.pem" />
-        </MetadataProvider>
-
         <MetadataProvider type="XML" validate="true"
                           url="https://md.incommon.org/InCommon/InCommon-metadata.xml"
-                          backingFilePath="/opt/shibboleth/incommon-metadata.xml" maxRefreshDelay="7200">
+                          backingFilePath="incommon-metadata.xml" maxRefreshDelay="7200">
             <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
             <MetadataFilter type="Signature" certificate="/opt/shibboleth/incommon-cd-cert.pem" verifyBackup="false"/>
             <DiscoveryFilter type="Blacklist" matcher="EntityAttributes" trimTags="true"

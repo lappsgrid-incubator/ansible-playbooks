@@ -1,4 +1,15 @@
 ---
+# The location of the LAPPS Grid certificates and private key.  These must be loaded from a secure
+# location on your local machine.
+# DO NOT CHECK THE PRIVATE KEY INTO SOURCE CONTROL!
+certificate_path: /Users/suderman/certs/2018
+
+# Apache configurations that are the same across operating systems
+server_name: galaxy.lappsgrid.org
+server_admin: webmaster@lappsgrid.org
+auth: basic
+doc_root: /var/www/galaxy
+
 ssl_path: /etc/{{ apache }}/ssl
 log_dir: /var/log/{{ apache }}
 password_file: /etc/{{ apache }}/.htpasswd

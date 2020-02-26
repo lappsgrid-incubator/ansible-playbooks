@@ -3,3 +3,4 @@ apache: httpd
 config_path: /etc/httpd/conf.d
 os_debian: no
 os_redhat: yes
+shib_user: shibd

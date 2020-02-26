@@ -1,7 +1,7 @@
 ---
 - hosts: galaxy
   vars_files:
-    - vars/defaults.yml
+    - vars/galaxy.yml
   tasks:
     - include_tasks: tasks/debian-service.yml
       when: ansible_os_family == 'Debian'

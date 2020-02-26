@@ -1,7 +1,5 @@
-{% if port == 443 %}
 SSLStaplingCache shmcb:/var/run/ocsp(128000)
-{% endif %}
-<VirtualHost *:{{ port }}>
+<VirtualHost *:443>
     ServerName {{ server_name }}
     ServerAdmin {{ server_admin }}
 
@@ -62,7 +60,6 @@ SSLStaplingCache shmcb:/var/run/ocsp(128000)
     </Location>
     {% endif %}
 
-    {% if port == 443 -%}
     SSLEngine on
     SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
     SSLCipherSuite "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
@@ -83,6 +80,5 @@ SSLStaplingCache shmcb:/var/run/ocsp(128000)
     <Directory /usr/lib/cgi-bin>
             SSLOptions +StdEnvVars
     </Directory>
-    {% endif %}
 
 </VirtualHost>

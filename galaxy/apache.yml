@@ -2,7 +2,7 @@
 - hosts: galaxy
   become: yes
   vars_files:
-    - vars/defaults.yml
+    - vars/galaxy.yml
     - private/galaxy.yml
   vars:
     required_modules:
@@ -12,10 +12,10 @@
       - proxy_http
   tasks:
     - name: System configuration
-      include_tasks: tasks/apache-init.yml
-    - name: Install {{ package_name }}
+      include_tasks: tasks/initialize.yml
+    - name: Install {{ apache }}
       package:
-        name: "{{ package_name }}"
+        name: "{{ apache }}"
         state: present
     - name: Make directories
       file:
@@ -62,26 +62,22 @@
         name: mod_ssl
         state: present
       when: os_redhat
-    - name: Enable Shibboleth
-      apache2_module:
-        name: shib
-        state: present
-      when: auth == 'shibboleth'
+#    - name: Enable Shibboleth
+#      apache2_module:
+#        name: shib
+#        state: present
+#      when: auth == 'shibboleth'
     - name: Configure HTTPS
-      vars:
-        port: 443
       template:
-        src: "templates/virtualhost.conf.j2"
-        dest: "{{ config_path }}/galaxy-ssl.conf"
-    - name: Configure HTTP
-      vars:
-        port: 80
-      template:
-        src: templates/virtualhost.conf.j2
+        src: templates/virtualhost-443.conf.j2
         dest: "{{ config_path }}/galaxy.conf"
-    - name: Enable both sites (Debian|Ubunut)
+    - name: Configure HTTP
+      template:
+        src: templates/virtualhost-80.conf.j2
+        dest: "{{ config_path }}/000-default.conf"
+    - name: Enable both sites (Debian|Ubunut only)
       command: a2ensite {{ item }}
-      loop: [ galaxy, galaxy-ssl ]
+      loop: [ galaxy, "000-default" ]
       args:
         creates: /etc/apache2/sites-enabled/galaxy
       when: ansible_os_family == 'Debian'
@@ -96,6 +92,6 @@
         password: password
     - name: Restart apache and ensure it is enabled on reboot
       service:
-        name: "{{ package_name }}"
+        name: "{{ apache }}"
         state: restarted
         enabled: yes
