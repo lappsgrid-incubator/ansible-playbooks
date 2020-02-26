@@ -30,5 +30,10 @@
 
 - hosts: galaxy
   tasks:
+    - name: Patch /etc/hosts during testing
+      lineinfile:
+        path: /etc/hosts
+        insertafter: EOF
+        line: "{{ ansible_host }} galaxy.lappsgrid.org"
     - name: Reboot. Both Galaxy and Apache should come online after the reboot.
       reboot:

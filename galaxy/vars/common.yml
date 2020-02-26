@@ -4,12 +4,21 @@
 # DO NOT CHECK THE PRIVATE KEY INTO SOURCE CONTROL!
 certificate_path: /Users/suderman/certs/2018
 
+# Options: basic, shibboleth
+auth: shibboleth
+
+# Options:
+# - samltest: initial testing and validation
+# - brandeis: integration testing
+# - incommon, incommon-mdq: production
+metadata_provider: samltest
+
 # Apache configurations that are the same across operating systems
 server_name: galaxy.lappsgrid.org
 server_admin: webmaster@lappsgrid.org
-auth: basic
 doc_root: /var/www/galaxy
 
+# The {{ apache }} variable is set in the OS specific intialization files.
 ssl_path: /etc/{{ apache }}/ssl
 log_dir: /var/log/{{ apache }}
 password_file: /etc/{{ apache }}/.htpasswd

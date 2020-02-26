@@ -60,11 +60,6 @@
                 helpLocation="/about.html"
                 styleSheet="/shibboleth-sp/main.css"/>
 
-        <!-- Example of locally maintained metadata. -->
-        <!--
-        <MetadataProvider type="XML" validate="true" path="partner-metadata.xml"/>
-        -->
-
         <!-- Example of remotely supplied batch of signed metadata. -->
         <!--
         <MetadataProvider type="XML" validate="true"
@@ -78,9 +73,7 @@
               attributeValue="http://refeds.org/category/hide-from-discovery" />
         </MetadataProvider>
         -->
-
-        <!-- Example of remotely supplied "on-demand" signed metadata. -->
-        <!--
+        {% if metadata_provider == 'incommon' -%}
         <MetadataProvider type="XML" validate="true"
                           url="https://md.incommon.org/InCommon/InCommon-metadata.xml"
                           backingFilePath="incommon-metadata.xml" maxRefreshDelay="7200">
@@ -91,24 +84,29 @@
                              attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
                              attributeValue="http://refeds.org/category/hide-from-discovery" />
         </MetadataProvider>
-
+        {% endif %}
+        {% if metadata_provider == 'incommon-mdq' -%}
         <MetadataProvider type="MDQ" id="incommon" ignoreTransport="true" cacheDirectory="inc-mdq-cache"
                           maxCacheDuration="86400" minCacheDuration="60"
                           baseUrl="https://mdq.incommon.org/">
             <MetadataFilter type="Signature" certificate="inc-md-cert-mdq.pem"/>
             <MetadataFilter type="RequireValidUntil" maxValidityInterval="1209600"/>
         </MetadataProvider>
+        {% endif %}
+        {% if metadata_provider == 'brandeis' -%}
         <MetadataProvider type="XML" validate="true"
                           url="https://shibboleth.brandeis.edu/metadata.xml"
                           backingFilePath="brandeis-metadata.xml">
                  <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
-                 <MetadataFilter type="Signature" certificate="signet.crt" verifyBackup="false"/>
+                 <!-- <MetadataFilter type="Signature" certificate="signet.crt" verifyBackup="false"/> -->
         </MetadataProvider>
+        {% endif %}
+        {% if metadata_provider == 'samltest' -%}
         <MetadataProvider type="XML" validate="true"
-            url="http://idp.vassar.edu/metadata.xml"
-            backingFilePath="vassar-metadata.xml">
+            url="https://samltest.id/saml/idp"
+            backingFilePath="samltest-metadata.xml">
         </MetadataProvider>
-        -->
+        {% endif %}
 
         <!-- Map to extract attributes from SAML assertions. -->
         <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
