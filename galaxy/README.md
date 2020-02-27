@@ -1,6 +1,6 @@
 # Ansible Playbook: Galaxy
 
-Installs and configures a LAPPS Grid [Galaxy](https://galaxyproject.org) instance.  This is not to be confused with [Ansible Galaxy](https://ansible.galaxy.com), which is the name of the program Ansible uses for dependency management.
+Installs and configures a LAPPS Grid [Galaxy](https://galaxyproject.org) instance with Apache2 serving as the front-end proxy.  This is not to be confused with [Ansible Galaxy](https://ansible.galaxy.com), which is the name of the program Ansible uses for dependency management.
 
 
 ## TL;DR
@@ -9,6 +9,12 @@ Installs and configures a LAPPS Grid [Galaxy](https://galaxyproject.org) instanc
 $> ansible-galaxy install --roles-path ./roles -r requirements.txt
 $> ansible-playbook setup.yml
 $> ansible-playbook -i hosts galaxy.yml
+```
+
+To configure Apache to use Shibboleth for authentication set the *auth* variable with the `--extra-vars` command line option when running the `galaxy.yml` playbook.
+
+``` 
+$> ansible-playbook -i hosts galaxy.yml -e auth=shibboleth
 ```
 ## Prerequisites
 

@@ -21,8 +21,8 @@
         - "{{ mods }}"
     - name: Configure the galaxy.yml file
       template:
-        src: templates/galaxy-config.yml.j2
-        dest: "{{ galaxy.home }}/config/galaxy.yml"
+        src: templates/galaxy.ini.j2
+        dest: "{{ galaxy.home }}/config/galaxy.ini"
     - name: Make sure the Galaxy user owns its directories
       file:
         path: "{{ item }}"
@@ -39,3 +39,13 @@
         virtualenv: "{{ galaxy.home }}/.venv"
       become: yes
       become_user: galaxy
+    - name: Copy the init.d script
+      copy:
+        src: files/galaxy_init_d.sh
+        dest: /etc/init.d/galaxy
+        mode: '0744'
+    - name: Enable Galaxy service
+      service:
+        name: galaxy
+        enabled: yes
+

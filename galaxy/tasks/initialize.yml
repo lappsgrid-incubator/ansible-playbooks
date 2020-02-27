@@ -9,3 +9,6 @@
   include_vars: vars/apache.yml
 - name: Common
   include_vars: vars/common.yml
+- name: Set the intialization flag
+  set_fact:
+    initialized: yes

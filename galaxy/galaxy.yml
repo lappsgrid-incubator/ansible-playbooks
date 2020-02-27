@@ -3,6 +3,11 @@
 #  import_playbook: setup.yml
 #  when: setup is defined and setup
 
+- hosts: galaxy
+  tasks:
+  - name: Initialization
+    include_tasks: tasks/initialize.yml
+
 - name: Install required packages
   import_playbook: packages.yml
 
@@ -17,9 +22,6 @@
 
 - name: Galaxy
   import_playbook: github.yml
-
-- name: Galaxy init.d service
-  import_playbook: service.yml
 
 - name: Shibboleth
   import_playbook: shibboleth.yml

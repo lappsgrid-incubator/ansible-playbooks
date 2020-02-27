@@ -13,6 +13,7 @@
   tasks:
     - name: System configuration
       include_tasks: tasks/initialize.yml
+      when: initialized is undefined or not initialized
     - name: Install {{ apache }}
       package:
         name: "{{ apache }}"

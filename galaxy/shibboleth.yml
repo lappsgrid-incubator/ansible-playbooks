@@ -12,6 +12,7 @@
   tasks:
     - name: Initialize variables
       include_tasks: tasks/initialize.yml
+      when: initialized is undefined or not initialized
     - name: Install Shibboleth (Debian|Ubuntu)
       block:
         - name: Install repository
@@ -25,9 +26,6 @@
             install_recommends: yes
             autoremove: yes
             update_cache: yes
-#        - name: Set service name
-#          set_fact:
-#            apache: apache2
       when: ansible_os_family == 'Debian'
     - name: Install Shibboleth (RedHat|CentOS)
       block:
@@ -40,9 +38,6 @@
             name: shibboleth.x86_64
             state: present
             update_cache: yes
-#        - name: Set service name
-#          set_fact:
-#            apache: httpd
       when: ansible_os_family == 'RedHat'
     - name: Copy our shibboleth2.xml
       template:

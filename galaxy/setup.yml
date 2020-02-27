@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
-  vars_files:
-    - vars/defaults.yml
+#  vars_files:
+#    - vars/defaults.yml
   tasks:
     - name: Ensure the vars directory exists.
       file:

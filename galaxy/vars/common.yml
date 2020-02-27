@@ -4,9 +4,10 @@
 # DO NOT CHECK THE PRIVATE KEY INTO SOURCE CONTROL!
 certificate_path: /Users/suderman/certs/2018
 
-# Options: basic, shibboleth
-auth: shibboleth
+# Options: none, basic, shibboleth
+auth: none
 
+# The metadata_provider only matters if auth == shibboleth
 # Options:
 # - samltest: initial testing and validation
 # - brandeis: integration testing

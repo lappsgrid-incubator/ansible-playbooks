@@ -1,4 +1,6 @@
+{% if auth is defined and auth == 'shibboleth' %}
 SSLStaplingCache shmcb:/var/run/ocsp(128000)
+{% endif %
 <VirtualHost *:443>
     ServerName {{ server_name }}
     ServerAdmin {{ server_admin }}
@@ -25,8 +27,7 @@ SSLStaplingCache shmcb:/var/run/ocsp(128000)
 #    RewriteRule ^/robots.txt /home/galaxy/galaxy/static/robots.txt [L]
 
     <Proxy http://localhost:{{ galaxy.port }}>
-	    Order deny,allow
-        Allow from all
+        Require all granted
     </Proxy>
 
     {% if auth == 'basic' -%}
@@ -50,6 +51,17 @@ SSLStaplingCache shmcb:/var/run/ocsp(128000)
         AuthType shibboleth
         ShibRequestSetting requireSession 1
         Require valid-user
+        # Require shib-session
+        RequestHeader set X-URL-SCHEME https
+	    RewriteCond %{IS_SUBREQ} ^false$
+        RewriteCond %{LA-U:REMOTE_USER} (.+)
+	    RewriteRule . - [E=RU:%1]
+        RequestHeader set REMOTE_USER %{RU}e
+        RequestHeader set GX_SECRET {{ galaxy.remote_user }}
+    </Location>
+    {% else -%}
+    <Location "/">
+        Require all granted
         # Require shib-session
         RequestHeader set X-URL-SCHEME https
 	    RewriteCond %{IS_SUBREQ} ^false$
