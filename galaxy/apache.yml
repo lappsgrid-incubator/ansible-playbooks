@@ -1,4 +1,6 @@
 ---
+# Installs Apache2, required modules, and the certificates and key for SSL.  The {{ certificate_path }} is
+# defined in vars/common.yml
 - hosts: galaxy
   become: yes
   vars_files:
@@ -63,11 +65,6 @@
         name: mod_ssl
         state: present
       when: os_redhat
-#    - name: Enable Shibboleth
-#      apache2_module:
-#        name: shib
-#        state: present
-#      when: auth == 'shibboleth'
     - name: Configure HTTPS
       template:
         src: templates/virtualhost-443.conf.j2
@@ -82,15 +79,18 @@
       args:
         creates: /etc/apache2/sites-enabled/galaxy
       when: ansible_os_family == 'Debian'
-    - name: Passlib is not installed on Ubuntu
-      pip:
-        name: passlib
-        state: present
-    - name: Set a secret password during testing
-      htpasswd:
-        path: "{{ password_file }}"
-        name: suderman@cs.vassar.edu
-        password: password
+    - name: If HTTP basic auth is being used we will need a password file
+      block:
+        - name: Passlib is not installed on Ubuntu and is needed by htpasswd
+          pip:
+            name: passlib
+            state: present
+        - name: Set a secret password during testing
+          htpasswd:
+            path: "{{ password_file }}"
+            name: suderman@cs.vassar.edu
+            password: password
+      when: auth == 'basic'
     - name: Restart apache and ensure it is enabled on reboot
       service:
         name: "{{ apache }}"

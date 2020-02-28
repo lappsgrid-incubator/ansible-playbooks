@@ -19,7 +19,7 @@ server_name: galaxy.lappsgrid.org
 server_admin: webmaster@lappsgrid.org
 doc_root: /var/www/galaxy
 
-# The {{ apache }} variable is set in the OS specific intialization files.
+# The {{ apache }} variable is set in the OS specific initialization files.
 ssl_path: /etc/{{ apache }}/ssl
 log_dir: /var/log/{{ apache }}
 password_file: /etc/{{ apache }}/.htpasswd

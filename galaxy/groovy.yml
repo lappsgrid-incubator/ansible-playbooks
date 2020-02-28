@@ -1,4 +1,5 @@
 ---
+# Downloads Groovy from an Apache mirror, verifies the checksum from apache.org, and then installs.
 - hosts: galaxy
   become: yes
   vars:

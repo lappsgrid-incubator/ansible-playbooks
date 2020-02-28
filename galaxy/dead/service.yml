@@ -1,4 +1,5 @@
 ---
+# Deprecated. This is no longer used and will be removed soon.
 - hosts: galaxy
   vars_files:
     - vars/galaxy.yml

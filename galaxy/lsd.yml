@@ -1,4 +1,5 @@
 ---
+# Install the LAPPS Services DSL.
 - hosts: galaxy
   become: yes
   vars:

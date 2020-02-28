@@ -1,4 +1,5 @@
 ---
+# Clone the LAPPS/Galaxy GitHub repository.
 - hosts: galaxy
   vars_files:
     - vars/galaxy.yml
@@ -19,7 +20,7 @@
       loop:
         - "{{ galaxy }}"
         - "{{ mods }}"
-    - name: Configure the galaxy.yml file
+    - name: Configure the galaxy.ini file
       template:
         src: templates/galaxy.ini.j2
         dest: "{{ galaxy.home }}/config/galaxy.ini"
