@@ -1,0 +1,83 @@
+---
+- hosts: shibboleth
+  vars:
+    #original: /etc/shibboleth/shibboleth2.xml
+    #shib_xml: /tmp/shibboleth2.xml
+    shib_xml: /etc/shibboleth/shibboleth2.xml
+  tasks:
+    - name: One of entityID or discoveryURL must be specified
+      fail:
+        msg: One of entityID or discoveryURL must be specified
+      when: entityID is undefined and discoveryURL is undefined
+    - name: Only one of entityID or discoveryURL can be specified
+      fail:
+        msg: Only one of entityID or discoveryURL can be specified
+      when: entityID is defined and discoveryURL is defined
+
+#    - name: Make a copy for testing
+#      copy:
+#        src: "{{ original }}"
+#        dest: "{{ shib_xml }}"
+#        remote_src: yes
+
+    #
+    # Set the entityID attribute and remove discoveryURL and discoveryProtocol
+    #
+    - name: SSO with entityID
+      xml:
+        path: "{{ shib_xml }}"
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:Sessions/s:SSO
+        attribute: entityID
+        value: "{{ entityID }}"
+      when: entityID is defined
+    - name: Remove discovery attributes
+      xml:
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        path: "{{ shib_xml }}"
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:Sessions/s:SSO/@{{ item }}
+        state: absent
+      loop:
+        - discoveryURL
+        - discoveryProtocol
+      when: entityID is defined
+    #
+    # Set the discovery attributes and remove entityID
+    #
+    - name: SSO with discoveryURL
+      xml:
+        path: "{{ shib_xml }}"
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:Sessions/s:SSO
+        attribute: discoveryURL
+        value: "{{ discoveryURL }}"
+      when: discoveryURL is defined
+    - name: Set discoveryProtocol
+      xml:
+        path: "{{ shib_xml }}"
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:Sessions/s:SSO
+        attribute: discoveryProtocol
+        value: SAMLDS
+      when: discoveryURL is defined
+    - name: Remove entityID
+      xml:
+        path: "{{ shib_xml }}"
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:Sessions/s:SSO/@entityID
+        state: absent
+      when: discoveryURL is defined
+#    - name: check output
+#      diff:
+#        source: "{{ original }}"
+#        target: "{{ shib_xml }}"
+
+
+
+
+

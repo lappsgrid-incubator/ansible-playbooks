@@ -1,0 +1,15 @@
+---
+- hosts: galaxy
+  vars:
+    modules:
+      - ssl
+      - headers
+      - rewrite
+      - proxy
+      - proxy_http
+  tasks:
+    - name: Enable required apache modules
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ modules }}"

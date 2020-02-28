@@ -1,0 +1,24 @@
+---
+- hosts: galaxy
+  vars_files:
+    - vars/galaxy.yml
+    - private/galaxy.yml
+  tasks:
+    - name: Initialization
+      include_tasks: tasks/initialize.yml
+    - name: Configure the galaxy.yml file
+      template:
+        src: templates/galaxy.ini.j2
+        dest: "{{ galaxy.home }}/config/galaxy.ini"
+    - name: Configure HTTPS
+      template:
+        src: templates/virtualhost-443.conf.j2
+        dest: "{{ config_path }}/galaxy.conf"
+
+#    - name: Patch /etc/hosts during testing
+#      lineinfile:
+#        path: /etc/hosts
+#        insertafter: EOF
+#        line: "{{ ansible_host }} galaxy.lappsgrid.org"
+#    - name: Reboot. Both Galaxy and Apache should come online after the reboot.
+#      reboot:

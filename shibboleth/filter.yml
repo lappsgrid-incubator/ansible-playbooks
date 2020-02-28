@@ -1,0 +1,20 @@
+---
+- hosts: shibboleth
+  gather_facts: no
+  vars:
+    shib_xml: /tmp/shibboleth2.xml
+  tasks:
+    - name: Add the MetadataFilters
+      xml:
+        namespaces:
+          s: urn:mace:shibboleth:3.0:native:sp:config
+        path: "{{ shib_xml }}"
+        xpath: /s:SPConfig/s:ApplicationDefaults/s:MetadataProvider
+        pretty_print: yes
+        add_children:
+          - MetadataFilter:
+              type: Signature
+              certificate: inc-md-cert-mdq.pem
+          - MedataFilter:
+              type: RequireValidUntil
+              maxValidityInterval: '1209600'

@@ -1,0 +1,35 @@
+---
+- hosts: galaxy
+  vars_files:
+    - ../vars/defaults.yml
+    - ../private/galaxy.yml
+  tasks:
+    - name: System configuration
+      include_tasks: ../tasks/apache-init.yml
+    - name: Configure HTTP
+      vars:
+        port: 80
+      template:
+        src: ../templates/virtualhost.conf.j2
+        dest: "{{ config_path }}/galaxy.conf"
+      notify: Restart Apache
+    - name: Configure HTTPS
+      vars:
+        port: 443
+      template:
+        src: ../templates/virtualhost.conf.j2
+        dest: "{{ config_path }}/galaxy-ssl.conf"
+      notify: Restart Apache
+    - name: Enable both sites
+      command: a2ensite {{ item }}
+      loop:
+        - galaxy
+        - galaxy-ssl
+      when: ansible_os_family == 'Debian'
+      notify: Restart Apache
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+

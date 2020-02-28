@@ -1,0 +1,9 @@
+---
+galaxy:
+  secret: "{{ id_secret.content }}"
+  remote_user: "{{ remote_user_secret.content }}"
+
+db:
+  username: galaxy
+  password: "{{ db_password.content }}"
+

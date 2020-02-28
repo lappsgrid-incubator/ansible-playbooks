@@ -1,0 +1,7 @@
+---
+apache: apache2
+config_path: /etc/apache2/sites-available
+os_debian: yes
+os_redhat: no
+shib_user: _shibd
+
