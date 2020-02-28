@@ -1,14 +1,17 @@
 ---
+# Install are required packages.  Fortunately most package names are the same across all distros with Java being
+# the only one that we need to figure out.  The package name sniffing could be moved to initialize.yml but since
+# they are only used here they are defined here.
 - hosts: galaxy
   tasks:
     - name: Determine Java package name (Debian|Ubuntu)
       set_fact:
-        java_package: openjdk-8-jdk
+        java: openjdk-8-jdk
         java_home: /usr/lib/jvm/java-8-openjdk-amd64
       when: ansible_os_family == 'Debian'
     - name: Determine Java package name (Redhat|CentOS)
       set_fact:
-        java_package: java-1.8.0-openjdk
+        java: java-1.8.0-openjdk
         java_home: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-0.el7_7.x86_64/jre
       when: ansible_os_family == 'RedHat'
     - name: Install packages
@@ -21,7 +24,7 @@
         - unzip
         - emacs
         - ntp
-        - "{{ java_package }}"
+        - "{{ java }}"
     - name: Configure JAVA_HOME
       template:
         src: templates/java_home.sh.j2

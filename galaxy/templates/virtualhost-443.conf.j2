@@ -1,8 +1,11 @@
+{% if auth is defined and auth == 'shibboleth' %}
+SSLStaplingCache shmcb:/var/run/ocsp(128000)
+{% endif %
 <VirtualHost *:443>
-    ServerName galaxy.lappsgrid.org
-    ServerAdmin webmaster@lappsgrid.org
+    ServerName {{ server_name }}
+    ServerAdmin {{ server_admin }}
 
-    DocumentRoot /var/www/galaxy
+    DocumentRoot {{ doc_root }}
 
     # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
     # error, crit, alert, emerg.
@@ -17,26 +20,21 @@
     ProxyPass / http://127.0.0.1:{{ galaxy.port }}/
 
     RewriteEngine on
-    RewriteRule ^/static/style/(.*) /home/galaxy/galaxy/static/june_2007_style/blue/$1 [L]
+#    RewriteRule ^/static/style/(.*) /home/galaxy/galaxy/static/june_2007_style/blue/$1 [L]
 #    RewriteRule ^/static/scripts/(.*) /home/galaxy/galaxy/static/scripts/packed/$1 [L]
-    RewriteRule ^/static/(.*) /home/galaxy/galaxy/static/$1 [L]
-    RewriteRule ^/favicon.ico /home/galaxy/galaxy/static/favicon.ico [L]
-    RewriteRule ^/robots.txt /home/galaxy/galaxy/static/robots.txt [L]
-        
-    SSLEngine on
-    SSLCertificateFile	{{ certificate }}
-    SSLCertificateKeyFile {{ key }}
-    SSLCertificateChainFile {{ root_certificate }}
+#    RewriteRule ^/static/(.*) /home/galaxy/galaxy/static/$1 [L]
+#    RewriteRule ^/favicon.ico /home/galaxy/galaxy/static/favicon.ico [L]
+#    RewriteRule ^/robots.txt /home/galaxy/galaxy/static/robots.txt [L]
 
-    <Proxy http://loacalhost:{{ galaxy.port }}>
-	    Order deny,allow
-        Allow from all
+    <Proxy http://localhost:{{ galaxy.port }}>
+        Require all granted
     </Proxy>
 
+    {% if auth == 'basic' -%}
     <Location "/">
         AuthType Basic
         AuthName Galaxy
-        AuthUserFile /etc/apache2/.htpasswd
+        AuthUserFile {{ password_file }}
         Require valid-user
         RequestHeader set X-URL-SCHEME https
 	    RewriteCond %{IS_SUBREQ} ^false$
@@ -45,6 +43,48 @@
         RequestHeader set REMOTE_USER %{RU}e
         RequestHeader set GX_SECRET {{ galaxy.remote_user }}
     </Location>
+    {% elif auth == 'shibboleth' -%}
+    <Location "/Shibboleth.sso">
+        SetHandler shib
+    </Location>
+    <Location "/">
+        AuthType shibboleth
+        ShibRequestSetting requireSession 1
+        Require valid-user
+        # Require shib-session
+        RequestHeader set X-URL-SCHEME https
+	    RewriteCond %{IS_SUBREQ} ^false$
+        RewriteCond %{LA-U:REMOTE_USER} (.+)
+	    RewriteRule . - [E=RU:%1]
+        RequestHeader set REMOTE_USER %{RU}e
+        RequestHeader set GX_SECRET {{ galaxy.remote_user }}
+    </Location>
+    {% else -%}
+    <Location "/">
+        Require all granted
+        # Require shib-session
+        RequestHeader set X-URL-SCHEME https
+	    RewriteCond %{IS_SUBREQ} ^false$
+        RewriteCond %{LA-U:REMOTE_USER} (.+)
+	    RewriteRule . - [E=RU:%1]
+        RequestHeader set REMOTE_USER %{RU}e
+        RequestHeader set GX_SECRET {{ galaxy.remote_user }}
+    </Location>
+    {% endif %}
+
+    SSLEngine on
+    SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+    SSLCipherSuite "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+    SSLHonorCipherOrder on
+    SSLCompression Off
+    SSLUseStapling On
+    SSLStaplingResponderTimeout 5
+    SSLStaplingReturnResponderErrors off
+
+    SSLCertificateFile	{{ ssl_path }}/certs/lappsgrid.crt
+    SSLCertificateKeyFile {{ ssl_path }}/private/lappsgrid.key
+    SSLCertificateChainFile {{ ssl_path }}/certs/lappsgrid-root.crt
+#    Header always set Strict-Transport-Security "max-age=63072000;includeSubDomains;preload"
 
     <FilesMatch "\.(cgi|shtml|phtml|php)$">
             SSLOptions +StdEnvVars

@@ -1,4 +1,5 @@
 ---
+# Uses the geerlingguy role from Ansible Galaxy to install and setup a Postgresql database for Galaxy.
 - hosts: galaxy
   vars_files:
     - private/postgresql.yml

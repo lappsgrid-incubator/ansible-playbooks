@@ -23,7 +23,3 @@ project:
   home: /home/galaxy/galaxy
   repo: https://github.com/galaxyproject/galaxy.git
 
-# The location of the LAPPS Grid certificates and private key.  These must be loaded from a secure
-# location on your local machine.
-# DO NOT CHECK THE PRIVATE KEY INTO SOURCE CONTROL!
-certificate_path: /Users/suderman/certs/2018

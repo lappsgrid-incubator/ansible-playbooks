@@ -4,20 +4,20 @@
   include_vars: vars/apache.yml
 - name: Include OS specific settings (RedHat|CentOS)
   set_fact:
-    package_name: httpd
+    apache: httpd
     config_path: /etc/httpd/conf.d
     os_redhat: yes
     os_debian: no
   when: ansible_os_family == 'RedHat'
 - name: Include OS specfic settigns (Debian|Ubuntu)
   set_fact:
-    package_name: apache2
+    apache: apache2
     config_path: /etc/apache2/sites-available
     os_redhat: no
     os_debian: yes
   when: ansible_os_family == 'Debian'
 - name: Set facts derived from package name
   set_fact:
-    ssl_path: /etc/{{ package_name }}/ssl
-    log_dir: /var/log/{{ package_name }}
-    password_file: /etc/{{ package_name }}/.htpasswd
+    ssl_path: /etc/{{ apache }}/ssl
+    log_dir: /var/log/{{ apache }}
+    password_file: /etc/{{ apache }}/.htpasswd

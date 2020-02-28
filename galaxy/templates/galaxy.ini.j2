@@ -531,7 +531,7 @@ wiki_url = http://wiki.lappsgrid.org
 # This only happens if the modified timestamp of the source .js is newer
 # than the version (if it exists) in /static/scripts/packed/
 # Note that this requires java > 1.4 for executing yuicompressor.jar
-#pack_scripts = False
+pack_scripts = True
 
 # Cloud Launch
 
@@ -740,6 +740,11 @@ id_secret = {{ galaxy.secret }}
 # Enabling remote user disables regular logins.  For more information, see:
 #   https://wiki.galaxyproject.org/Admin/Config/ApacheProxy
 #use_remote_user = False
+{% if auth is defined and auth != 'none' %}
+use_remote_user = True
+remote_user_secret = {{ galaxy.remote_user }}
+remote_user_logout_href = /Shibboleth.sso/Logout
+{% endif %}
 
 # If use_remote_user is enabled and your external authentication
 # method just returns bare usernames, set a default mail domain to be appended
@@ -759,7 +764,7 @@ id_secret = {{ galaxy.secret }}
 # If anyone other than the Galaxy user is using the server, then apache/nginx
 # should pass a value in the header 'GX_SECRET' that is identical to the one
 # below.
-remote_user_secret = {{ galaxy.remote_user }}
+#remote_user_secret = {{ galaxy.remote_user }}
 
 # If use_remote_user is enabled, you can set this to a URL that will log your
 # users out.
@@ -1053,4 +1058,3 @@ job_config_file = {{ mods.home }}/mods/config/job_conf.xml
 #exchange = galaxy_exchange
 #routing_key = bar_code_scanner
 #rabbitmqctl_path = /path/to/rabbitmqctl
-

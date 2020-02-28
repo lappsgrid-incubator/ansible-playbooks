@@ -1,4 +1,6 @@
-
+---
+# Destroy Jetstream instances created by the jetstream.yml playbook.
+# To use this playbook you MUST source the openrc.sh file with your OpenStack API credentials for IU.
 - hosts: localhost
   vars_files:
     vars/jetstream.yml

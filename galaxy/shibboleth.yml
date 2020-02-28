@@ -1,54 +1,71 @@
 ---
-- hosts: shibboleth
+# Install a Shibboleth service provider.
+- hosts: galaxy
   vars:
     http_port: 80
-    domain: sso.lappsgrid.org
+    domain: galaxy.lappsgrid.org
     hostname: "{{ domain }}"
     entity_id: https://{{ domain }}/shibboleth
     #sso_entity_id: https://shibboleth.brandeis.edu/idp/shibboleth
     sso_entity_id: https://samltest.id/saml/idp
+    shib_dir: /etc/shibboleth
   become: yes
   tasks:
-    - name: Install Shibboleth repository
-      apt:
-        state: present
-        deb: https://pkg.switch.ch/switchaai/ubuntu/dists/bionic/main/binary-all/misc/switchaai-apt-source_1.0.0ubuntu1_all.deb
-    - name: Install Shibboleth
-      apt:
-        name: shibboleth
-        state: present
-        install_recommends: yes
-        autoremove: yes
-        update_cache: yes
+    - name: Initialize variables
+      include_tasks: tasks/initialize.yml
+      when: initialized is undefined or not initialized
+    - name: Install Shibboleth (Debian|Ubuntu)
+      block:
+        - name: Install repository
+          apt:
+            state: present
+            deb: https://pkg.switch.ch/switchaai/ubuntu/dists/bionic/main/binary-all/misc/switchaai-apt-source_1.0.0ubuntu1_all.deb
+        - name: Install Shibboleth
+          apt:
+            name: shibboleth
+            state: present
+            install_recommends: yes
+            autoremove: yes
+            update_cache: yes
+      when: ansible_os_family == 'Debian'
+    - name: Install Shibboleth (RedHat|CentOS)
+      block:
+        - name: Install repository
+          copy:
+            src: files/shibboleth.repo
+            dest: /etc/yum.repos.d/shibboleth.repo
+        - name: Install Shibboleth
+          yum:
+            name: shibboleth.x86_64
+            state: present
+            update_cache: yes
+      when: ansible_os_family == 'RedHat'
     - name: Copy our shibboleth2.xml
       template:
         src: templates/shibboleth2.xml.j2
-        dest: /etc/shibboleth/shibboleth2.xml
+        dest: "{{ shib_dir }}/shibboleth2.xml"
     - name: Get the incommon signing key
       get_url:
         url: http://md.incommon.org/certs/inc-md-cert-mdq.pem
-        dest: /etc/shibboleth
-    - name: Generate keys and certificates
-      command: shib-keygen -f -u _shibd -h {{ hostname }} -e {{ entity_id }} -o /etc/shibboleth -n sp-{{ item }}
+        dest: "{{ shib_dir }}"
+    - name: Generate keys and certificates (Debian|Ubuntu)
+      command: shib-keygen -f -u _shibd -h {{ hostname }} -e {{ entity_id }} -o {{ shib_dir }} -n sp-{{ item }} -f
       loop: [ encrypt, signing ]
+      when: ansible_os_family == 'Debian'
+    - name: Generate keys and certificates (RedHat|CentOS)
+      command:
+        cmd: ./keygen.sh -f -u shibd -f shibd -h {{ hostname }} -y 30 -e {{ entity_id }} -n sp-{{ item }} -f
+        chdir: "{{ shib_dir }}"
+      loop: [ encrypt, signing ]
+      when: ansible_os_family == 'RedHat'
     - name: make sure shibd owns its directory
       file:
-        path: /etc/shibboleth
-        owner: _shibd
-        group: _shibd
+        path: "{{ shib_dir }}"
+        owner: "{{ shib_user }}"
+        group: "{{ shib_user }}"
         recurse: yes
-    - name: Enable the apache module
-      apache2_module:
-        name: shib
-        state: present
-      notify: Restart Apache
-    - name: restart and enable shibd
+    - name: Enable shibd service
       service:
         name: shibd
         state: restarted
         enabled: yes
-  handlers:
-    - name: Restart Apache
-      service:
-        name: apache2
-        state: restarted

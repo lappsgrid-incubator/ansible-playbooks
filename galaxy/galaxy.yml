@@ -1,7 +1,16 @@
 ---
+# The uber-playbook for provisioning a Galaxy server.  This is still a WIP.
+#
+# Each of the imported playbooks can be used in isolation to perform that task. For example
+# if you just want to checkout LAPPS/Galaxy from GitHub run the github.yml playbook
 #- name: Generate secrets
 #  import_playbook: setup.yml
 #  when: setup is defined and setup
+
+- hosts: galaxy
+  tasks:
+  - name: Initialization
+    include_tasks: tasks/initialize.yml
 
 - name: Install required packages
   import_playbook: packages.yml
@@ -18,16 +27,19 @@
 - name: Galaxy
   import_playbook: github.yml
 
-- name: Galaxy init.d service
-  import_playbook: service.yml
+- name: Shibboleth
+  import_playbook: shibboleth.yml
+  when: auth == "shibboleth"
 
 - name: Apache
   import_playbook: apache.yml
 
-#- name: Shibboleth
-#  import_playbook: shibboleth.yml
-
 - hosts: galaxy
   tasks:
+    - name: Patch /etc/hosts during testing
+      lineinfile:
+        path: /etc/hosts
+        insertafter: EOF
+        line: "{{ ansible_host }} galaxy.lappsgrid.org"
     - name: Reboot. Both Galaxy and Apache should come online after the reboot.
       reboot:
