@@ -7,7 +7,7 @@
     filename: apache-groovy-binary-{{ groovy_version }}
     zipfile: "{{ filename }}.zip"
     download_url: https://dl.bintray.com/groovy/maven/{{ zipfile }}
-    checksum_url: https://www.apache.org/dist/groovy/{{ groovy_version }}/distribution/{{ zipfile }}.sha256
+    checksum_url: https://archive.apache.org/dist/groovy/{{ groovy_version }}/distribution/{{ zipfile }}.sha256
     dest: /usr/lib/groovy
   tasks:
     - name: Create destination directory

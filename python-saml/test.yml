@@ -1,0 +1,24 @@
+---
+- hosts: shibboleth
+  tasks:
+    - name: Stat the .bashrc file
+      stat:
+        path: /root/.bashrc
+      register: p
+    - name: Make sure the .bashrc exists
+      file:
+        path: /root/.bashrc
+        owner: root
+        group: root
+        mode: 0744
+        state: '{{ "file" if p.stat.exists else "touch" }}'
+    - name: Add pyenv init to the end of the .bashrc
+      blockinfile:
+        path: /root/.bashrc
+        insertafter: EOF
+        block: |
+          export PATH="/root/.pyenv/bin:$PATH"
+          eval "$(pyenv init -)"
+          eval "$(pyenv virtualenv-init -)"
+    - name: Reboot the server
+      reboot:

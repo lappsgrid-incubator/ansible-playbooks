@@ -1,0 +1,16 @@
+network: 588397c7-8d91-4db4-b3ea-9d293209221f
+flavor: m1.small
+security_group: galaxy
+
+ubuntu:
+  name: python-saml
+  image: fdab8084-c23d-443e-b4c8-ae53a6571e73
+  ip: 149.165.168.6
+
+centos:
+  name: galaxy-centos
+  image: 0e45f427-38e9-4319-ae71-9aee5497295c
+  ip: 149.165.157.140
+
+servers:
+  - "{{ ubuntu }}"

@@ -22,8 +22,25 @@
         - "{{ mods }}"
     - name: Configure the galaxy.ini file
       template:
-        src: templates/galaxy.ini.j2
-        dest: "{{ galaxy.home }}/config/galaxy.ini"
+        src: templates/galaxy-config.yml.j2
+        dest: "{{ galaxy.home }}/config/galaxy.yml"
+    - name: Link the LAPPS Python lib
+      file:
+        src: "{{ mods.home }}/lib/lappsgrid"
+        dest: "{{ galaxy.home }}/lib/lappsgrid"
+        state: link
+    - name: Link the welcome_url
+      file:
+        src: "{{ mods.home }}/index.html"
+        dest: "{{ galaxy.home }}/static/index.html"
+        state: link
+    - name: Make sure gxformat2 is installed
+      pip:
+        name: gxformat2
+        state: present
+        virtualenv: "{{ galaxy.home }}/.venv"
+      become: yes
+      become_user: galaxy
     - name: Make sure the Galaxy user owns its directories
       file:
         path: "{{ item }}"
@@ -33,13 +50,6 @@
       loop:
         - "{{ galaxy.home }}"
         - "{{ mods.home }}"
-    - name: Make sure gxformat2 is installed
-      pip:
-        name: gxformat2
-        state: present
-        virtualenv: "{{ galaxy.home }}/.venv"
-      become: yes
-      become_user: galaxy
     - name: Copy the init.d script
       copy:
         src: files/galaxy_init_d.sh
@@ -49,4 +59,7 @@
       service:
         name: galaxy
         enabled: yes
+    - name: Make needed modifications to the Galaxy installation
+      include_tasks: tasks/galaxy-mods.yml
+
 

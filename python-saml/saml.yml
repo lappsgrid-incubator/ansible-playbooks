@@ -1,0 +1,42 @@
+---
+- hosts: shibboleth
+  vars:
+    required_packages:
+      - git
+      - make
+      - wget
+      - curl
+      - llvm
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - libxmlsec1-dev
+      - libncurses5-dev
+  tasks:
+#    - name: Install packages
+#      package:
+#        name: "{{ item }}"
+#        state: present
+#      loop: "{{ required_packages }}"
+    - name: Download the pyenv install script.
+      get_url:
+        url: https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer
+        dest: /tmp
+        mode: '0755'
+    - name: Remove any previous installation
+      file:
+        path: /root/.pyenv
+        state: absent
+    - name: Run the pyenv install script
+      command: /tmp/pyenv-installer
+    - name: Add pyenv init to .bashrc
+      blockinfile:
+        path: /root/.bashrc
+        insertafter: EOF
+        block: |
+          export PATH="/root/.pyenv/bin:$PATH"
+          eval "$(pyenv init -)"
+          eval "$(pyenv virtualenv-init -)"

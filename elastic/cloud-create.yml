@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Setup
+      include_vars: variables.yml
+    - name: Create a security group
+      os_security_group:
+        name: ELK
+        state: present
+        description: Firewall rules for the ElasticSearch servers.
+    - name: Allow all traffic from other Jetstream instances
+      os_security_group_rule:
+        security_group: ELK
+        protocol: tcp
+        remote_ip_prefix: 129.114.0.0/16
+    - name: All traffic for Keith from home.
+      os_security_group_rule:
+        security_group: ELK
+        protocol: tcp
+        remote_ip_prefix: 96.248.0.0/16
+    - name: All traffic for Keith from Truro.
+      os_security_group_rule:
+        security_group: ELK
+        protocol: tcp
+        remote_ip_prefix: 73.17.169.106/32
+    - name: Create instances
+      os_server:
+        state: present
+        name: ELK-{{ item }}
+        image: "{{ ubuntu_18_04 }}"
+        flavor: m1.large
+        key_name: tacc-shared-key
+        security_groups: ELK
+        auto_ip: no
+        nics:
+          - net-id: "{{ lapps_network }}"
+      loop: [1]
+    - name: Assign a consitent IP address to our ELK stack
+      os_floating_ip:
+        server: ELK-1
+        floating_ip_address: 129.114.104.185
+        state: present
+

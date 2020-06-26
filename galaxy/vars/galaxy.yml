@@ -1,6 +1,6 @@
 ---
-galaxy_branch: authentication
-mods_branch: authentication
+galaxy_branch: saml.experiment
+mods_branch: master
 
 galaxy:
   port: 8000

@@ -1,0 +1,21 @@
+---
+# Create Jetstream instances.  By default new VMs are created at IU.
+# To use this playbook you MUST source the openrc.sh file with your OpenStack API credentials for IU.
+- hosts: localhost
+  vars_files:
+    - vars/jetstream.yml
+  tasks:
+    - name: Create Jetstream instance
+      os_server:
+        state: present
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        flavor: "{{ flavor }}"
+        key_name: lappsgrid-shared-key
+        security_groups: "{{ security_group }}"
+        floating_ips:
+          - "{{ item.ip }}"
+        nics:
+          - net-id: "{{ network }}"
+      loop: "{{ servers }}"
+

@@ -3,6 +3,26 @@
 # the only one that we need to figure out.  The package name sniffing could be moved to initialize.yml but since
 # they are only used here they are defined here.
 - hosts: galaxy
+  vars:
+    packages:
+      debian:
+        - build-essential
+        - libssl-dev
+        - zlib1g-dev
+        - libbz2-dev
+        - libreadline-dev
+        - libsqlite3-dev
+        - libxmlsec1-dev
+        - libncurses5-dev
+      redhat:
+        - "@Development tools"
+        - openssl-devel
+        - zlib-devel
+        - bzip2-libs
+        - readline-devel
+        - libsq3-devel
+        - libffi-devel
+        - xmlsec1-devel
   tasks:
     - name: Determine Java package name (Debian|Ubuntu)
       set_fact:
@@ -14,7 +34,7 @@
         java: java-1.8.0-openjdk
         java_home: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-0.el7_7.x86_64/jre
       when: ansible_os_family == 'RedHat'
-    - name: Install packages
+    - name: Install common packages
       package:
         name: "{{ item }}"
         state: present
@@ -25,6 +45,24 @@
         - emacs
         - ntp
         - "{{ java }}"
+        - make
+        - wget
+        - curl
+        - llvm
+    - name: Install RedHat/CentOS packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages.redhat }}"
+      when:
+        - ansible_os_family == 'RedHat'
+    - name: Install Debian/Ubuntu pakcages
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages.debian }}"
+      when:
+        - ansible_os_family == 'Debian'
     - name: Configure JAVA_HOME
       template:
         src: templates/java_home.sh.j2
